@@ -1,0 +1,83 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+
+actor "Руководитель центра" as administrator
+
+
+rectangle "Приложение для регистрации и учета сигналов бедствий на арктических станциях." {
+
+   
+    usecase "Управления записями о спасательных средствах" as UC1
+
+    usecase "Создание спасательного средства" as UC11
+    usecase "Изменение спасательного средства" as UC12
+    usecase "Удаление спасательного средства" as UC13
+    usecase "Просмотр всех спасательных средств" as UC14
+
+    UC1 <|-- UC11
+    UC1 <|-- UC12
+    UC1 <|-- UC13
+    UC1 <|-- UC14
+
+
+    usecase "Управления записями о членах экипажа" as UC2
+
+
+    usecase "Создание члена экипажа" as UC21
+    usecase "Изменение члена экипажа" as UC22
+    usecase "Удаление члена экипажа" as UC23
+    usecase "Просмотр всех членов экипажей" as UC24
+
+
+    UC2 <|-- UC21
+    UC2 <|-- UC22
+    UC2 <|-- UC23
+    UC2 <|-- UC24
+
+
+    usecase "Регистрация сообщения о бедствии" as UC3
+    
+    usecase "Сохранение истории плана в журнал" as UCI1
+    
+    usecase "Создание плана реагирования" as UC4
+    UC4 .> UCI1 : <<include>>
+
+    usecase "Изменение плана реагирования" as UC5
+    UC5 .> UCI1 : <<include>>
+
+    usecase "Добавление акта о спасении" as UC6
+    usecase "Добавление акта о ложном вызове" as UC7
+    
+    usecase "Создание отчетов по спасательной деятельности" as UC8
+
+
+    usecase "Создание отчета: кол-во сообщений по типам происшествий" as UC81
+    usecase "Создание отчета: среднее время реагирования" as UC82
+    usecase "Создание отчета: доля ложных срабатываний" as UC83
+    usecase "Создание отчета: готовность спасательных средств" as UC84
+    usecase "Создание отчета: кол-во операция по сезонам" as UC85
+
+    UC8 <|-- UC81
+    UC8 <|-- UC82
+    UC8 <|-- UC83
+    UC8 <|-- UC84
+    UC8 <|-- UC85
+
+
+
+
+
+}
+
+administrator --> UC1
+administrator --> UC2
+administrator --> UC3
+administrator --> UC4
+administrator --> UC5
+administrator --> UC6
+administrator --> UC7
+administrator --> UC8
+
+@enduml
