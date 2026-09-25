@@ -1,7 +1,36 @@
 services:
+
+  postgres:
+    image: postgres:16
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+  
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+      start_interval: 1s
+
+
   backend:
     build: "."
+    container_name: backend_container
     environment:
       APP_PORT: ${APP_PORT}
     ports:
       - "${APP_PORT}:${APP_PORT}"
+    depends_on:
+      postgres: 
+        condition: service_healthy
+
+volumes:
+  pgdata:
