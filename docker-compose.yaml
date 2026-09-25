@@ -1,0 +1,7 @@
+services:
+  backend:
+    build: "."
+    environment:
+      APP_PORT: ${APP_PORT}
+    ports:
+      - "${APP_PORT}:${APP_PORT}"

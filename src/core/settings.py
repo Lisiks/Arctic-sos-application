@@ -7,7 +7,6 @@ class AppSettings(BaseSettings):
         case_sensitive=False,
         env_prefix="APP_",
         extra="ignore",
-        env_file=".env"
     )
 
 
