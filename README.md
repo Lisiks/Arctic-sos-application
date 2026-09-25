@@ -1,1 +1,1 @@
-<h1>Идите нахуй славяне!</h1>
+This is a direct design project that includes code and models.
