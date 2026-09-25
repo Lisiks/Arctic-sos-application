@@ -30,6 +30,7 @@ class DBSettings(BaseSettings):
 
 class Config:
     app: AppSettings = AppSettings()
+    db: DBSettings = DBSettings()
 
 
 config = Config()
