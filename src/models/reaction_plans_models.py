@@ -1,0 +1,46 @@
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Annotated, Optional
+
+from datetime import datetime
+
+from ..enums import WeatherCondition
+from .short_models import LifesavingDeviceShortMode
+
+
+class ReactionPlanBaseModel(BaseModel):
+    help_message_id: Annotated[int, Field(alias="helpMessageId")]
+    lifesaving_devices_id: Annotated[int, Field(alias="lifesavingDevicesId")]
+    planning_datetime: Annotated[datetime, Field(alias="planningDatetime")]
+    weather_condition: Annotated[list[WeatherCondition], Field(alias="weatherCondition")]
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        validate_by_alias=False,
+        serialize_by_alias=False
+    )
+
+class ReactionPlanPostModel(ReactionPlanBaseModel):
+    model_config = ConfigDict(
+        from_attributes=True,
+        validate_by_alias=True,
+        serialize_by_alias=False
+    )
+
+class ReactionPlanGetModel(ReactionPlanBaseModel):
+    lifesaving_device: Annotated[LifesavingDeviceShortMode, Field(alias="lifesavingDevice")]
+    
+    model_config = ConfigDict(
+        from_attributes=True,
+        validate_by_alias=False,
+        serialize_by_alias=True
+    )
+
+class ReactionPlanHistoryGetModel(ReactionPlanBaseModel):
+    lifesaving_device: Annotated[LifesavingDeviceShortMode, Field(alias="lifesavingDevice")]
+    change_datetime: Annotated[datetime, Field(alias="changeDatetime")]
+    
+    model_config = ConfigDict(
+        from_attributes=True,
+        validate_by_alias=False,
+        serialize_by_alias=True
+    )

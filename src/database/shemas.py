@@ -2,7 +2,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import NUMERIC, Enum, Text, DateTime, ForeignKey, CheckConstraint, String, ARRAY, PrimaryKeyConstraint, Text
 from datetime import datetime
 
-from ..Enums import *
+from ..enums import *
 
 class Base(DeclarativeBase):
     ...
