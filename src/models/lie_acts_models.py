@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import Annotated, Optional
 from datetime import datetime
 
+from .short_models import HelpMessageShortModel
+
 class LieActBaseModel(BaseModel):
     help_message_id: Annotated[int, Field(alias="helpMessageId")]
     reason_description: Annotated[str, Field(alias="reasonDescription")]
@@ -23,6 +25,8 @@ class LieActPostModel(LieActBaseModel):
     )
 
 class LieActGetModel(LieActBaseModel):
+    help_message: Annotated[HelpMessageShortModel, Field(alias="helpMessage")]
+
     model_config = ConfigDict(
         from_attributes=True,
         validate_by_alias=False,

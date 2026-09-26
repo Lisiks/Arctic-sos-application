@@ -4,7 +4,7 @@ from typing import Annotated, Optional
 from datetime import datetime
 
 from ..enums import WeatherCondition
-from .short_models import LifesavingDeviceShortMode
+from .short_models import LifesavingDeviceShortMode, HelpMessageShortModel
 
 
 class ReactionPlanBaseModel(BaseModel):
@@ -28,6 +28,7 @@ class ReactionPlanPostModel(ReactionPlanBaseModel):
 
 class ReactionPlanGetModel(ReactionPlanBaseModel):
     lifesaving_device: Annotated[LifesavingDeviceShortMode, Field(alias="lifesavingDevice")]
+    help_message: Annotated[HelpMessageShortModel, Field(alias="helpMessage")]
     
     model_config = ConfigDict(
         from_attributes=True,

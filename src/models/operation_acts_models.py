@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import Annotated, Optional
 from datetime import datetime
 
+from .short_models import HelpMessageShortModel
+
 
 class OperationActBaseModel(BaseModel):
     help_message_id: Annotated[int, Field(alias="helpMessageId")]
@@ -25,6 +27,8 @@ class OperationActPostModel(OperationActBaseModel):
     )
 
 class OperationActGetModel(OperationActBaseModel):
+    help_message: Annotated[HelpMessageShortModel, Field(alias="helpMessage")]
+
     model_config = ConfigDict(
         from_attributes=True,
         validate_by_alias=False,
