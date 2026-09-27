@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчетность - Арктический центр</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Координационный центр арктических поисково-спасательных операций</h1>
+        <p>Панель управления и отчетности</p>
+    </header>
+
+    <div class="nav-tabs">
+        <a href="index.html">Поступившие сообщения</a>
+        <a href="plan.html">План реагирования</a>
+        <a href="act.html">Итоговый акт операции</a>
+        <a href="false_alarms.html">Ложные срабатывания</a>
+        <a href="rescue_means.html">Спасательные средства</a>
+        <a href="crew.html">Экипаж</a>
+        <a href="reports.html" class="active">Отчетность</a>
+    </div>
+
+    <div class="container">
+        <div class="toolbar">
+            <h2>Формирование отчетности</h2>
+        </div>
+        <p style="color: #718096; margin-bottom: 20px;">Выберите тип отчета для формирования и выгрузки данных.</p>
+
+        <div class="reports-grid">
+            <div class="report-card">
+                <h3>Количество сообщений по типам происшествий</h3>
+                <p>Группировка всех поступивших сообщений по типу происшествия с подсчетом общего количества (COUNT).</p>
+                <button class="btn btn-report">Создать отчет</button>
+            </div>
+            <div class="report-card">
+                <h3>Среднее время реагирования</h3>
+                <p>Расчет среднего времени от поступления сигнала до прибытия на место (AVG) на основе итоговых актов и ложных срабатываний.</p>
+                <button class="btn btn-report">Создать отчет</button>
+            </div>
+            <div class="report-card">
+                <h3>Доля ложных срабатываний</h3>
+                <p>Процентное соотношение ложных срабатываний к общему числу операций. Формула: (Ложные / (Акты + Ложные)) * 100%.</p>
+                <button class="btn btn-report">Создать отчет</button>
+            </div>
+            <div class="report-card">
+                <h3>Готовность спасательных средств</h3>
+                <p>Список спасательных средств, отфильтрованных по статусу "Готов", с группировкой по типу средства.</p>
+                <button class="btn btn-report">Создать отчет</button>
+            </div>
+            <div class="report-card">
+                <h3>Количество операций по сезонам</h3>
+                <p>Анализ сезонной динамики: подсчет количества операций (COUNT) с группировкой по временам года.</p>
+                <button class="btn btn-report">Создать отчет</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

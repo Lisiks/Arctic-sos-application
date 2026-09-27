@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Сотрудник - Арктический центр</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Координационный центр арктических поисково-спасательных операций</h1>
+        <p>Форма сотрудника</p>
+    </header>
+
+    <div class="nav-tabs">
+        <a href="index.html">Поступившие сообщения</a>
+        <a href="plan.html">План реагирования</a>
+        <a href="act.html">Итоговый акт операции</a>
+        <a href="false_alarms.html">Ложные срабатывания</a>
+        <a href="rescue_means.html">Спасательные средства</a>
+        <a href="crew.html" class="active">Экипаж</a>
+        <a href="reports.html">Отчетность</a>
+    </div>
+
+    <div class="container">
+        <div class="form-container">
+            <div class="toolbar">
+                <h2>Сотрудник</h2>
+            </div>
+
+            <form>
+                <div class="form-group">
+                    <label>Фамилия И.О.</label>
+                    <input type="text" placeholder="Например: Иванов И.И." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Должность</label>
+                    <select required>
+                        <option value="">-- Выберите должность --</option>
+                        <option>Младший спасатель</option>
+                        <option>Старший спасатель</option>
+                        <option>Летчик</option>
+                        <option>Капитан</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Спасательное средство</label>
+                    <select required>
+                        <option value="">-- Выберите средство --</option>
+                        <option>Судно "Арктика"</option>
+                        <option>Вертолет Ми-8</option>
+                        <option>Катер "Баренц"</option>
+                        <option>СВП "Полярник"</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save">Сохранить</button>
+                    <a href="crew.html" class="btn btn-back">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

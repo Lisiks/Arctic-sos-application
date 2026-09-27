@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Поступившие сообщения - Арктический центр</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Координационный центр арктических поисково-спасательных операций</h1>
+        <p>Панель управления и отчетности</p>
+    </header>
+
+    <div class="nav-tabs">
+        <a href="index.html" class="active">Поступившие сообщения</a>
+        <a href="plan.html">План реагирования</a>
+        <a href="act.html">Итоговый акт операции</a>
+        <a href="false_alarms.html">Ложные срабатывания</a>
+        <a href="rescue_means.html">Спасательные средства</a>
+        <a href="crew.html">Экипаж</a>
+        <a href="reports.html">Отчетность</a>
+    </div>
+
+    <div class="container">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <div class="pagination">
+                    <button type="button">←</button>
+                    <button type="button">→</button>
+                </div>
+                <h2>Поступившие сообщения</h2>
+            </div>
+            <a href="message_create.html" class="btn btn-primary">+ Добавить сообщение</a>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Источник</th>
+                    <th>Координаты</th>
+                    <th>Тип происшествия</th>
+                    <th>Описание</th>
+                    <th>Канал связи</th>
+                    <th>Время приема</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Принято → кнопка Утвердить план -->
+                <tr>
+                    <td>101</td>
+                    <td>Судно "Арктика"</td>
+                    <td>75°N, 45°E</td>
+                    <td>Пожар</td>
+                    <td>Возгорание в машинном отделении</td>
+                    <td>КОСПАС-САРСАТ</td>
+                    <td>2026-09-25 10:15</td>
+                    <td><span class="status status-new">Принято</span></td>
+                    <td>
+                        <a href="plan_form.html" class="btn btn-approve">Утвердить план реагирования</a>
+                    </td>
+                </tr>
+                <!-- В работе → 2 кнопки: акт об операции, акт о ложном вызове -->
+                <tr>
+                    <td>102</td>
+                    <td>Полярная станция "Север"</td>
+                    <td>80°N, 60°E</td>
+                    <td>Отказ двигателя</td>
+                    <td>Отказ главного двигателя, дрейф</td>
+                    <td>Спутниковый телефон</td>
+                    <td>2026-09-25 11:30</td>
+                    <td><span class="status status-work">В работе</span></td>
+                    <td>
+                        <div class="actions">
+                            <a href="act_form.html" class="btn btn-act">Оформить акт об операции</a>
+                            <a href="false_form.html" class="btn btn-false">Оформить акт о ложном вызове</a>
+                        </div>
+                    </td>
+                </tr>
+                <!-- Завершено → действия пусты -->
+                <tr>
+                    <td>103</td>
+                    <td>Экспедиция "Восток"</td>
+                    <td>82°N, 30°E</td>
+                    <td>Пропажа участника</td>
+                    <td>Участник не вышел на связь 6 часов</td>
+                    <td>Радиосвязь</td>
+                    <td>2026-09-25 12:00</td>
+                    <td><span class="status status-done">Завершено</span></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
