@@ -22,6 +22,7 @@ class LifesavingDevicesRepository:
 
         if device is not None:
             await self.__session.delete(device)
+            await self.__session.commit()
 
     async def modify(self, device_id: int, device_params: LivesavingDevicePostModel) -> None:
         device = await self.__session.get(LifesavingDevices, device_id)

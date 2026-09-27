@@ -6,7 +6,7 @@ from typing import Annotated
 
 from ...core.database import get_session
 
-from ...models.crews_models import CrewGetModel, CrewPostModel
+from ...models.crews_models import CrewGetModel, CrewPostModel, CrewGetModelWithLifesevingDevice
 from ..shemas import Crews
 
 class CrewsRepository:
@@ -23,6 +23,7 @@ class CrewsRepository:
 
         if crew is not None:
             await self.__session.delete(crew)
+            await self.__session.commit()
 
     async def modify(self, crew_id: int, crew_params: CrewPostModel) -> None:
         crew = await self.__session.get(Crews, crew_id)
@@ -33,8 +34,8 @@ class CrewsRepository:
 
             await self.__session.commit()
 
-    async def get_all(self) -> list[CrewGetModel]:
+    async def get_all(self) -> list[CrewGetModelWithLifesevingDevice]:
         stmt = select(Crews).options(joinedload(Crews.lifesaving_device))
         devices = await self.__session.scalars(stmt)
-        return [CrewGetModel.model_validate(device) for device in devices.all()]
+        return [CrewGetModelWithLifesevingDevice.model_validate(device) for device in devices.all()]
 

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Annotated, Optional
 from datetime import datetime
 
@@ -14,6 +14,11 @@ class HelpMessageBaseModel(BaseModel):
     chanell_type: Annotated[CommunicationChannelType, Field(alias="chanellType")]
     datetime: datetime
     status: Annotated[Optional[IncidentStatus], Field(default=IncidentStatus.IN_PROGRESS)]
+
+    @field_validator("datetime", mode="after")
+    @classmethod
+    def replase_dt_timezone(cls, value: datetime) -> datetime:
+        return value.replace(tzinfo=None)
 
     model_config = ConfigDict(
         from_attributes=True,

@@ -13,15 +13,15 @@ class HelpMessages(Base):
     __tablename__ = "help_messages"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    source_type: Mapped[str] = mapped_column(Enum(SourceType, name="sourse_type"))
+    source_type: Mapped[SourceType] = mapped_column(Enum(SourceType, name="sourse_type"))
     latitude: Mapped[float] = mapped_column(NUMERIC(7, 4))
     longitude: Mapped[float] = mapped_column(NUMERIC(7, 4))
     
-    incident_type: Mapped[str] = mapped_column(Enum(HelpMessageType, name="help_message_type"))
+    incident_type: Mapped[HelpMessageType] = mapped_column(Enum(HelpMessageType, name="help_message_type"))
     incident_description: Mapped[str] = mapped_column(Text)
-    chanell_type: Mapped[str] = mapped_column(Enum(CommunicationChannelType, name="communication_channel_type"))
+    chanell_type: Mapped[CommunicationChannelType] = mapped_column(Enum(CommunicationChannelType, name="communication_channel_type"))
     datetime: Mapped[datetime] = mapped_column(DateTime, index=True)
-    status: Mapped[str] = mapped_column(Enum(IncidentStatus, name="incident_status"))
+    status: Mapped[IncidentStatus] = mapped_column(Enum(IncidentStatus, name="incident_status"))
 
     __table_args__ = (
         CheckConstraint("latitude >= -180.0 AND latitude <= 180.0", name="latitude_ck"),
@@ -33,11 +33,11 @@ class LifesavingDevices(Base):
     __tablename__ = "lifesaving_devices"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    type: Mapped[str] = mapped_column(Enum(RescueAssetType, name="rescue_asset_type"))
+    type: Mapped[RescueAssetType] = mapped_column(Enum(RescueAssetType, name="rescue_asset_type"))
     latitude: Mapped[float] = mapped_column(NUMERIC(7, 4))
     longitude: Mapped[float] = mapped_column(NUMERIC(7, 4))
     reach_zone_km: Mapped[float] = mapped_column(NUMERIC(20, 2))
-    status: Mapped[str] = mapped_column(Enum(RescueAssetStatus, name="rescue_asset_status"))
+    status: Mapped[RescueAssetStatus] = mapped_column(Enum(RescueAssetStatus, name="rescue_asset_status"))
 
     __table_args__ = (
         CheckConstraint("latitude >= -180.0 AND latitude <= 180.0", name="latitude_ck"),
@@ -58,7 +58,7 @@ class Crews(Base):
     f: Mapped[str] = mapped_column(String(100))
     i: Mapped[str] = mapped_column(String(100))
     o: Mapped[str] = mapped_column(String(100))
-    position: Mapped[str] = mapped_column(Enum(Position, name="crew_position"))
+    position: Mapped[Position] = mapped_column(Enum(Position, name="crew_position"))
     lifesaving_devices_id: Mapped[int] = mapped_column(ForeignKey("lifesaving_devices.id", name="lifesaving_device_fk", ondelete="RESTRICT", onupdate="CASCADE"))
 
     lifesaving_device: Mapped["LifesavingDevices"] = relationship(
@@ -71,7 +71,7 @@ class ReactionPlans(Base):
     help_message_id: Mapped[int] = mapped_column(ForeignKey("help_messages.id", name="help_message_fk", ondelete="CASCADE", onupdate="CASCADE"), primary_key=True)
     lifesaving_devices_id: Mapped[int] = mapped_column(ForeignKey("lifesaving_devices.id", name="lifesaving_device_fk", ondelete="RESTRICT", onupdate="CASCADE"))
     planning_datetime: Mapped[datetime] = mapped_column(DateTime)
-    weather_condition: Mapped[list[str]] = mapped_column(ARRAY(Enum(WeatherCondition, name="weather_condition")))
+    weather_condition: Mapped[list[WeatherCondition]] = mapped_column(ARRAY(Enum(WeatherCondition, name="weather_condition")))
 
     lifesaving_device: Mapped["LifesavingDevices"] = relationship()
     help_message: Mapped["HelpMessages"] = relationship()
@@ -83,7 +83,7 @@ class ReactionPlansHistory(Base):
     change_datetime: Mapped[datetime] = mapped_column(DateTime, index=True)
     lifesaving_devices_id: Mapped[int] = mapped_column(ForeignKey("lifesaving_devices.id", name="lifesaving_device_fk", ondelete="RESTRICT", onupdate="CASCADE"))
     planning_time: Mapped[datetime] = mapped_column(DateTime)
-    weather_condition: Mapped[list[str]] = mapped_column(ARRAY(Enum(WeatherCondition, name="weather_condition")))
+    weather_condition: Mapped[list[WeatherCondition]] = mapped_column(ARRAY(Enum(WeatherCondition, name="weather_condition")))
 
     lifesaving_device: Mapped["LifesavingDevices"] = relationship()
 

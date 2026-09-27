@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Annotated, Optional
 
 from datetime import datetime
@@ -18,6 +18,11 @@ class ReactionPlanBaseModel(BaseModel):
         validate_by_alias=False,
         serialize_by_alias=False
     )
+
+    @field_validator("planning_datetime", mode="after")
+    @classmethod
+    def replase_dt_timezone(cls, value: datetime) -> datetime:
+        return value.replace(tzinfo=None)
 
 class ReactionPlanPostModel(ReactionPlanBaseModel):
     model_config = ConfigDict(
