@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Новое сообщение - Арктический центр</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Координационный центр арктических поисково-спасательных операций</h1>
+        <p>Создание поступившего сообщения</p>
+    </header>
+
+    <div class="nav-tabs">
+        <a href="index.html" class="active">Поступившие сообщения</a>
+        <a href="plan.html">План реагирования</a>
+        <a href="act.html">Итоговый акт операции</a>
+        <a href="false_alarms.html">Ложные срабатывания</a>
+        <a href="rescue_means.html">Спасательные средства</a>
+        <a href="crew.html">Экипаж</a>
+        <a href="reports.html">Отчетность</a>
+    </div>
+
+    <div class="container">
+        <div class="form-container">
+            <div class="toolbar">
+                <h2>Новое поступившее сообщение</h2>
+            </div>
+
+            <form>
+                <div class="form-group">
+                    <label>Источник</label>
+                    <input type="text" placeholder="Например: Судно «Арктика»" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Координаты</label>
+                    <input type="text" placeholder="Например: 75°N, 45°E">
+                </div>
+
+                <div class="form-group">
+                    <label>Тип происшествия</label>
+                    <select required>
+                        <option value="">-- Выберите тип --</option>
+                        <option>Пожар</option>
+                        <option>Отказ двигателя</option>
+                        <option>Столкновение судов</option>
+                        <option>Посадка на мель</option>
+                        <option>Начальнение / опрокидывание / затопление судна</option>
+                        <option>Падение человека за борт</option>
+                        <option>Разлив нефтепродуктов</option>
+                        <option>Потеря связи с судном</option>
+                        <option>Аварийная посадка</option>
+                        <option>Падение воздушного судна</option>
+                        <option>Потеря радиосвязи с судном</option>
+                        <option>Отказ энергоснабжения</option>
+                        <option>Обрушение / повреждение конструкций</option>
+                        <option>Пропажа участника экспедиции</option>
+                        <option>Острое заболевание / травма в полевых условиях</option>
+                        <option>Отказ транспорта экспедиции</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Описание происшествия</label>
+                    <textarea placeholder="Подробное описание ситуации"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Канал связи</label>
+                    <select required>
+                        <option value="">-- Выберите канал --</option>
+                        <option>КОСПАС-САРСАТ</option>
+                        <option>Спутниковый телефон</option>
+                        <option>Радиосвязь</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Время приема</label>
+                    <input type="datetime-local" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Статус</label>
+                    <select required>
+                        <option value="">-- Выберите статус --</option>
+                        <option>Принято</option>
+                        <option>В работе</option>
+                        <option>Завершено</option>
+                        <option>Ложное срабатывание</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save">Сохранить</button>
+                    <a href="index.html" class="btn btn-back">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
