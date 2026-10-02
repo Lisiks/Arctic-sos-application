@@ -323,4 +323,14 @@ async def plans_get(
     )
 
 
+@router.get("/reports", status_code=status.HTTP_200_OK)
+async def plans_get(
+    request: Request,
+  
+):
+    return templater.TemplateResponse(
+        name="reports.html",
+        request=request,
+    )
+
 
