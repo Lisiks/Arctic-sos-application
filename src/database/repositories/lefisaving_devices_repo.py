@@ -33,7 +33,11 @@ class LifesavingDevicesRepository:
 
             await self.__session.commit()
 
+    async def get_by_id(self, device_id: int) -> LivesavingDeviceGetModel | None:
+        device = await self.__session.get(LifesavingDevices, device_id)
+        return LivesavingDeviceGetModel.model_validate(device) if device is not None else None
+
     async def get_all(self) -> list[LivesavingDeviceGetModel]:
-        stmt = select(LifesavingDevices).options(selectinload(LifesavingDevices.crews))
+        stmt = select(LifesavingDevices)
         devices = await self.__session.scalars(stmt)
         return [LivesavingDeviceGetModel.model_validate(device) for device in devices.all()]

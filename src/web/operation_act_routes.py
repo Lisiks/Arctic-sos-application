@@ -7,12 +7,13 @@ from ..models.operation_acts_models import OperationActGetModel, OperationActPos
 router = APIRouter(prefix="/operationacts", tags=["Operation acts"])
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=dict[str, str])
+@router.post("/{message_id}", status_code=status.HTTP_201_CREATED, response_model=dict[str, str])
 async def create(
+    message_id: Annotated[int, Path(gt=0)],
     repo: Annotated[OperationActRepository, Depends(OperationActRepository)],
     data: Annotated[OperationActPostModel, Form(media_type="application/x-www-form-urlencoded")]
 ) -> dict[str, str]:
-    await repo.create(data)
+    await repo.create(message_id, data)
     return {"msg": "created"}
 
 

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status, Query, Form, Path
 from typing import Annotated, Optional
 
 from ..database.repositories import CrewsRepository
-from ..models.crews_models import CrewGetModel, CrewPostModel, CrewGetModelWithLifesevingDevice
+from ..models.crews_models import CrewGetModel, CrewPostModel
 
 router = APIRouter(prefix="/crews", tags=["Crews"])
 
@@ -35,8 +35,8 @@ async def modify(
     return {"msg": "modified"}
 
 
-@router.get("/", status_code=status.HTTP_200_OK, response_model=list[CrewGetModelWithLifesevingDevice])
+@router.get("/", status_code=status.HTTP_200_OK, response_model=list[CrewGetModel])
 async def get_all(
     repo: Annotated[CrewsRepository, Depends(CrewsRepository)],
-) -> list[CrewGetModelWithLifesevingDevice]:
+) -> list[CrewGetModel]:
     return await repo.get_all()

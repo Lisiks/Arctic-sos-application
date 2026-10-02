@@ -6,6 +6,7 @@ from ..enums import RescueAssetType, RescueAssetStatus, SourceType, HelpMessageT
 
 class LifesavingDeviceShortMode(BaseModel):
     id: int
+    name: str
     type: RescueAssetType
     status: Annotated[Optional[RescueAssetStatus], Field(default=RescueAssetStatus.READY)]
 

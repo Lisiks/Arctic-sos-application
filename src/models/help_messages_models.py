@@ -13,7 +13,7 @@ class HelpMessageBaseModel(BaseModel):
     incident_description: Annotated[str, Field(alias="incidentDescription")]
     chanell_type: Annotated[CommunicationChannelType, Field(alias="chanellType")]
     datetime: datetime
-    status: Annotated[Optional[IncidentStatus], Field(default=IncidentStatus.IN_PROGRESS)]
+    status: Annotated[IncidentStatus, Field(default=IncidentStatus.ACCEPTED)]
 
     @field_validator("datetime", mode="after")
     @classmethod

@@ -1,13 +1,13 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Annotated, Optional
 
-from ..enums import Position, RescueAssetType, RescueAssetStatus
-from .short_models import LifesavingDeviceShortMode
+from ..enums import Position
+from .lifesaving_devises_models import LivesavingDeviceGetModel
 
 class CrewBaseModel(BaseModel):
-    f: Annotated[str, Field(max_length=100)]
-    i: Annotated[str, Field(max_length=100)]
-    o: Annotated[str, Field(max_length=100)]
+    f: Annotated[str, Field(max_length=100, min_length=2)]
+    i: Annotated[str, Field(max_length=100, min_length=2)]
+    o: Annotated[str, Field(max_length=100, min_length=2)]
     position: Position
     lifesaving_devices_id: Annotated[int, Field(alias="lifesavingDevicesId")]
 
@@ -27,6 +27,7 @@ class CrewPostModel(CrewBaseModel):
 
 class CrewGetModel(CrewBaseModel):
     id: int
+    lifesaving_device: LivesavingDeviceGetModel
 
     model_config = ConfigDict(
         from_attributes=True,
@@ -35,5 +36,3 @@ class CrewGetModel(CrewBaseModel):
     )
 
 
-class CrewGetModelWithLifesevingDevice(CrewGetModel):
-    lifesaving_device: Annotated[LifesavingDeviceShortMode, Field(alias="lifesavingDevice")]

@@ -8,9 +8,8 @@ from .short_models import LifesavingDeviceShortMode, HelpMessageShortModel
 
 
 class ReactionPlanBaseModel(BaseModel):
-    help_message_id: Annotated[int, Field(alias="helpMessageId")]
     lifesaving_devices_id: Annotated[int, Field(alias="lifesavingDevicesId")]
-    planning_datetime: Annotated[datetime, Field(alias="planningDatetime")]
+    planning_time: Annotated[datetime, Field(alias="planningDatetime")]
     weather_condition: Annotated[list[WeatherCondition], Field(alias="weatherCondition")]
 
     model_config = ConfigDict(
@@ -19,7 +18,7 @@ class ReactionPlanBaseModel(BaseModel):
         serialize_by_alias=False
     )
 
-    @field_validator("planning_datetime", mode="after")
+    @field_validator("planning_time", mode="after")
     @classmethod
     def replase_dt_timezone(cls, value: datetime) -> datetime:
         return value.replace(tzinfo=None)
@@ -32,8 +31,8 @@ class ReactionPlanPostModel(ReactionPlanBaseModel):
     )
 
 class ReactionPlanGetModel(ReactionPlanBaseModel):
+    help_message_id: Annotated[int, Field(alias="helpMessageId")]
     lifesaving_device: Annotated[LifesavingDeviceShortMode, Field(alias="lifesavingDevice")]
-    help_message: Annotated[HelpMessageShortModel, Field(alias="helpMessage")]
     
     model_config = ConfigDict(
         from_attributes=True,
@@ -42,6 +41,7 @@ class ReactionPlanGetModel(ReactionPlanBaseModel):
     )
 
 class ReactionPlanHistoryGetModel(ReactionPlanBaseModel):
+    help_message_id: Annotated[int, Field(alias="helpMessageId")]
     lifesaving_device: Annotated[LifesavingDeviceShortMode, Field(alias="lifesavingDevice")]
     change_datetime: Annotated[datetime, Field(alias="changeDatetime")]
     

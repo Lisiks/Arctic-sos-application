@@ -1,0 +1,41 @@
+{% extends "base_template.html" %}
+
+{% block document_title %}Ложный вызов - Арктический центр{% endblock %}
+
+{% block form_title %}Оформление акта о ложном вызове{% endblock %}
+
+{% block main %}
+
+    <div class="container">
+        <div class="form-container">
+            <div class="toolbar">
+                <h2>Акт о ложном вызове по сообщению #{{ message.id }} ({{message.incident_type.value}})</h2>
+            </div>
+
+            <form id="create-form">
+                <div class="form-group">
+                    <label>Описание причины</label>
+                    <textarea placeholder="Что послужило причиной ложного срабатывания" name="reasonDescription"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Меры регулирования</label>
+                    <textarea placeholder="Какие меры были приняты" name="actionDescription"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Дата прибытия</label>
+                    <input type="date" required name="factDatetime">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save">Сохранить</button>
+                    <a href="/site/messages" class="btn btn-back">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+     <script type="module" src="{{ url_for('static', path='JS/create_lie_act.js') }}"></script>
+
+{% endblock %}

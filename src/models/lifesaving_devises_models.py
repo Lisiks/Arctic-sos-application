@@ -1,13 +1,12 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Annotated, Optional
 
-from datetime import datetime
 
-from .crews_models import CrewGetModel
 from ..enums import RescueAssetStatus, RescueAssetType
 
 class LivesavingDeviceBaseModel(BaseModel):
     type: RescueAssetType
+    name: Annotated[str, Field(max_length=200, min_length=5)]
     latitude: Annotated[float, Field(ge=-180.0, le=180)]
     longitude: Annotated[float, Field(ge=-180.0, le=180)]
     reach_zone_km: Annotated[float, Field(gt=0, alias="reachZoneKm")]
@@ -30,7 +29,6 @@ class LivesavingDevicePostModel(LivesavingDeviceBaseModel):
 
 class LivesavingDeviceGetModel(LivesavingDeviceBaseModel):
     id: int
-    crews: list[CrewGetModel]
 
     model_config = ConfigDict(
         from_attributes=True,

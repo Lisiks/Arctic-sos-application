@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from fastapi import Depends
 from typing import Annotated
 
@@ -17,8 +17,12 @@ class HelpMessagesRepository:
         self.__session.add(message)
         await self.__session.commit()
 
+    async def get_by_id(self, message_id) -> HelpMessageGetModel | None:
+        message = await self.__session.get(HelpMessages, message_id)
+        return HelpMessageGetModel.model_validate(message) if message is not None else None
+
 
     async def get_all(self, page: int) -> list[HelpMessageGetModel]:
-        stmt = select(HelpMessages).order_by(HelpMessages.datetime, HelpMessages.id).limit(30).offset(page * 30)
+        stmt = select(HelpMessages).order_by(desc(HelpMessages.datetime), HelpMessages.id).limit(30).offset((page - 1) * 30)
         messages = await self.__session.scalars(stmt)
         return [HelpMessageGetModel.model_validate(message) for message in messages.all()]

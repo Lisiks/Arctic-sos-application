@@ -1,0 +1,44 @@
+{% extends "base_template.html" %}
+
+{% block document_title %}Экипаж - Арктический центр{% endblock %}
+
+{% block form_title %}Панель управления и отчетности{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="toolbar">
+            <h2>Список сотрудников (Экипаж)</h2>
+            <a href="/site/crews/create" class="btn btn-primary">+ Добавить сотрудника</a>
+        </div>
+
+         <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>ФИО</th>
+                        <th>Должность</th>
+                        <th>Спасательное средство</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for crew in crews %}
+                        <tr>
+                            <td>{{ crew.id }}</td>
+                            <td>{{ crew.f + ' ' + crew.i + ' ' + crew.o}}</td>
+                            <td>{{ crew.position.value }}</td>
+                            <td>{{ crew.lifesaving_device.name }}</td>
+                            <td><div class="actions"><a href="/site/crews/modify/{{ crew.id }}" class="btn btn-edit">Ред.</a><button class="btn btn-delete" deletedCrewId="{{ crew.id }}">Удалить</button></div></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+         </div>
+        
+    </div>
+
+    <script type="module" src="{{ url_for('static', path='JS/delete_crew.js') }}"></script>
+
+{% endblock %}

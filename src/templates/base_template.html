@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block document_title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='CSS/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Координационный центр арктических поисково-спасательных операций</h1>
+        <p>{% block form_title %}{% endblock %}</p>
+    </header>
+
+    <div class="nav-tabs">
+        <a href="/site/messages">Поступившие сообщения</a>
+        <a href="/site/plans">План реагирования</a>
+        <a href="/site/act">Итоговый акт операции</a>
+        <a href="/site/lieact">Ложные срабатывания</a>
+        <a href="/site/lifesavingdevises">Спасательные средства</a>
+        <a href="/site/crews">Экипаж</a>
+        <a href="reports.html">Отчетность</a>
+    </div>
+
+    {% block main %}
+    {% endblock %}
+</body>
+</html>

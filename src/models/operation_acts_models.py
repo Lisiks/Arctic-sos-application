@@ -2,14 +2,13 @@ from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Annotated, Optional
 from datetime import datetime
 
-from .short_models import HelpMessageShortModel
+
 
 
 class OperationActBaseModel(BaseModel):
-    help_message_id: Annotated[int, Field(alias="helpMessageId")]
     resque_count: Annotated[int, Field(ge=0, alias="resqueCount")]
-    help_info: Annotated[str, Field("helpInfo")]
-    resourses_info: Annotated[str, Field("resoursesInfo")]
+    help_info: Annotated[str, Field(alias="helpInfo")]
+    resourses_info: Annotated[str, Field(alias="resoursesInfo")]
     fact_datetime: Annotated[datetime, Field(alias="factDatetime")]
 
     @field_validator("fact_datetime", mode="after")
@@ -32,7 +31,7 @@ class OperationActPostModel(OperationActBaseModel):
     )
 
 class OperationActGetModel(OperationActBaseModel):
-    help_message: Annotated[HelpMessageShortModel, Field(alias="helpMessage")]
+    help_message_id: Annotated[int, Field(alias="helpMessageId")]
 
     model_config = ConfigDict(
         from_attributes=True,

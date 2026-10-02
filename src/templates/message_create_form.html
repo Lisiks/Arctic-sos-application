@@ -1,0 +1,78 @@
+{% extends "base_template.html" %}
+
+{% block document_title %}Новое сообщение - Арктический центр{% endblock %}
+
+{% block form_title %}Добавление сообщения{% endblock %}
+
+
+
+
+{% block main %}
+    <div class="container">
+        <div class="form-container">
+            <div class="toolbar">
+                <h2>Новое поступившее сообщение</h2>
+            </div>
+
+            <form id="create-form" method="post">
+                <div class="form-group">
+                    <label>Источник</label>
+                    <select name="sourceType" required>
+                        <option value="">-- Выберите тип источника сообщения --</option>
+                        {% for sourse_type in sourse_types %}
+                            <option value="{{ sourse_type }}">{{ sourse_type }}</option>
+                        {% endfor %}
+                    </select> 
+                </div>
+
+                <div class="form-group">
+                    <label>Широта базирования источника °</label>
+                    <input type="number" placeholder="0" min="-180" max="180" step="0.0001" name="latitude" required>
+                    <label>Долгота базирования источника°</label>
+                    <input type="number" placeholder="0" min="-180" max="180" step="0.0001" name="longitude" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Тип происшествия</label>
+                    <select required name="incidentType">
+                        <option value="">-- Выберите тип --</option>
+                        {% for incident_type in incident_types %}
+                            <option value="{{ incident_type }}">{{ incident_type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Описание происшествия</label>
+                    <textarea placeholder="Подробное описание ситуации" name="incidentDescription"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Канал связи</label>
+                    <select required name="chanellType">
+                        <option value="">-- Выберите канал --</option>
+                        {% for chanell_type in chanell_types %}
+                            <option value="{{ chanell_type }}">{{ chanell_type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Время приема</label>
+                    <input type="datetime-local" required name="datetime">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save">Сохранить</button>
+                    <a href="/site/messages" class="btn btn-back">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="{{ url_for('static', path='JS/create_message.js') }}"></script>
+{% endblock %}
+
+
+
+    

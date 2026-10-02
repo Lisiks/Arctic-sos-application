@@ -7,35 +7,37 @@ from ..models.reaction_plans_models import ReactionPlanHistoryGetModel, Reaction
 router = APIRouter(prefix="/plans", tags=["Reaction plans"])
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=dict[str, str])
+@router.post("/{message_id}", status_code=status.HTTP_201_CREATED, response_model=dict[str, str])
 async def create(
     repo: Annotated[ReactPlansRepository, Depends(ReactPlansRepository)],
-    data: Annotated[ReactionPlanPostModel, Form(media_type="application/x-www-form-urlencoded")]
+    data: Annotated[ReactionPlanPostModel, Form(media_type="application/x-www-form-urlencoded")],
+    message_id: Annotated[int, Path(gt=0)]
 ) -> dict[str, str]:
-    await repo.create(data)
+    await repo.create(message_id, data)
     return {"msg": "created"}
 
 
-@router.patch("/", status_code=status.HTTP_202_ACCEPTED, response_model=dict[str, str])
+@router.patch("/{message_id}", status_code=status.HTTP_202_ACCEPTED, response_model=dict[str, str])
 async def modify(
     repo: Annotated[ReactPlansRepository, Depends(ReactPlansRepository)],
-    data: Annotated[ReactionPlanPostModel, Form(media_type="application/x-www-form-urlencoded")]
+    data: Annotated[ReactionPlanPostModel, Form(media_type="application/x-www-form-urlencoded")],
+    message_id: Annotated[int, Path(gt=0)]
 ) -> dict[str, str]:
-    await repo.modify(data)
+    await repo.modify(message_id, data)
     return {"msg": "modified"}
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=list[ReactionPlanGetModel])
 async def get_all(
     repo: Annotated[ReactPlansRepository, Depends(ReactPlansRepository)],
-    page: Annotated[Optional[int], Query(ge=0)] = 0,
+    page: Annotated[Optional[int], Query(gt=0)] = 1,
 ) -> list[ReactionPlanGetModel]:
     return await repo.get_all(page)
 
 
-@router.get("/{help_message_id}/history", status_code=status.HTTP_200_OK, response_model=list[ReactionPlanHistoryGetModel])
+@router.get("/{message_id}/history", status_code=status.HTTP_200_OK, response_model=list[ReactionPlanHistoryGetModel])
 async def get_all(
     repo: Annotated[ReactPlansRepository, Depends(ReactPlansRepository)],
-    help_message_id: Annotated[int, Path(gt=0)]
+    message_id: Annotated[int, Path(gt=0)]
 ) -> list[ReactionPlanGetModel]:
-    return await repo.get_history(help_message_id)
+    return await repo.get_history(message_id)

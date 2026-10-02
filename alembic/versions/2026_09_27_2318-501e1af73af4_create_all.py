@@ -1,8 +1,8 @@
-"""create_all
+"""create all
 
-Revision ID: 346cce857adc
+Revision ID: 501e1af73af4
 Revises: 
-Create Date: 2026-09-25 23:38:04.512138
+Create Date: 2026-09-27 23:18:04.633437
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '346cce857adc'
+revision: str = '501e1af73af4'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -35,8 +35,10 @@ def upgrade() -> None:
     sa.CheckConstraint('longitude >= -180.0 AND longitude <= 180.0', name='longitude_ck'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_help_messages_datetime'), 'help_messages', ['datetime'], unique=False)
     op.create_table('lifesaving_devices',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=200), nullable=False),
     sa.Column('type', sa.Enum('SHIP', 'TUG', 'BOAT', 'HOVERCRAFT', 'HELICOPTER', name='rescue_asset_type'), nullable=False),
     sa.Column('latitude', sa.NUMERIC(precision=7, scale=4), nullable=False),
     sa.Column('longitude', sa.NUMERIC(precision=7, scale=4), nullable=False),
@@ -78,7 +80,7 @@ def upgrade() -> None:
     op.create_table('reaction_plans',
     sa.Column('help_message_id', sa.Integer(), nullable=False),
     sa.Column('lifesaving_devices_id', sa.Integer(), nullable=False),
-    sa.Column('planning_datetime', sa.DateTime(), nullable=False),
+    sa.Column('planning_time', sa.DateTime(), nullable=False),
     sa.Column('weather_condition', sa.ARRAY(sa.Enum('LOW_TEMPERATURE', 'STRONG_WINDS', 'HIGH_HUMIDITY', 'FOG', 'SNOWFALL', 'BLIZZARD', 'POLAR_NIGHT', 'POLAR_DAY', 'LOW_PRESSURE', 'ICING', 'LOW_CLOUDINESS', 'HIGH_CLOUDINESS', name='weather_condition')), nullable=False),
     sa.ForeignKeyConstraint(['help_message_id'], ['help_messages.id'], name='help_message_fk', onupdate='CASCADE', ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['lifesaving_devices_id'], ['lifesaving_devices.id'], name='lifesaving_device_fk', onupdate='CASCADE', ondelete='RESTRICT'),
@@ -94,7 +96,9 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['lifesaving_devices_id'], ['lifesaving_devices.id'], name='lifesaving_device_fk', onupdate='CASCADE', ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('help_message_id', 'change_datetime', name='plans_history_pk')
     )
+    op.create_index(op.f('ix_reaction_plans_history_change_datetime'), 'reaction_plans_history', ['change_datetime'], unique=False)
     # ### end Alembic commands ###
+
     op.execute(
         """
         CREATE OR REPLACE FUNCTION haversine_km(
@@ -108,18 +112,19 @@ def upgrade() -> None:
             result double precision;
         BEGIN
             SELECT 2 * 6371.0 * asin(
-                sqrt(
-                    power(sin(radians(lat2 - lat1) / 2), 2)
-                    + cos(radians(lat1))
-                    * cos(radians(lat2))
-                    * power(sin(radians(lon2 - lon1) / 2), 2)
-                )
+            sqrt(
+                power(sin(radians(lat2 - lat1) / 2), 2)
+                + cos(radians(lat1))
+                * cos(radians(lat2))
+                * power(sin(radians(lon2 - lon1) / 2), 2)
+            )
             ) INTO result;
             RETURN result::NUMERIC(20, 2);
         END;
         $$ LANGUAGE plpgsql;
         """
     )
+
 
     op.execute(
         """
@@ -132,11 +137,22 @@ def upgrade() -> None:
             device_longitude NUMERIC(7, 4);
             device_status VARCHAR;
             device_type VARCHAR;
+            help_message_status VARCHAR;
             device_reach_zone_km NUMERIC(20, 2);
+            help_call_time TIMESTAMP;
         BEGIN
-            SELECT help_messages.latitude, help_messages.longitude INTO help_call_latitude, help_call_longitude
+
+            SELECT help_messages.status, help_messages.latitude, help_messages.longitude, help_messages.datetime INTO help_message_status, help_call_latitude, help_call_longitude, help_call_time
             FROM help_messages
             WHERE help_messages.id = NEW.help_message_id;
+
+            IF (help_message_status = 'COMPLETED' OR help_message_status = 'FALSE_ALARM') THEN
+            RAISE 'This help message already done';
+            END IF;
+            
+            IF (help_call_time > NEW.planning_time) THEN
+                RAISE 'Planning time smaller than help call time';
+            END IF;
 
             SELECT lifesaving_devices.latitude, lifesaving_devices.longitude, lifesaving_devices.status, lifesaving_devices.type, lifesaving_devices.reach_zone_km
             INTO device_latitude, device_longitude, device_status, device_type, device_reach_zone_km
@@ -144,74 +160,89 @@ def upgrade() -> None:
             WHERE lifesaving_devices.id = NEW.lifesaving_devices_id;
 
             IF TG_OP = 'INSERT' THEN
-                IF (device_status = 'в рейде') OR (device_status = 'на обслуживании') THEN
-                    RAISE EXCEPTION 'Lifesaving devices cannot be used for this operation, because its status is %', device_status;
-                END IF;
+            IF (device_status = 'ON_MISSION') OR (device_status = 'UNDER_MAINTENANCE') THEN
+                RAISE EXCEPTION 'Lifesaving devices cannot be used for this operation, because its status is %', device_status;
+            END IF;
             ELSIF TG_OP = 'UPDATE' THEN
-                IF (device_status = 'в рейде' AND OLD.lifesaving_devices_id != NEW.lifesaving_devices_id) OR (device_status = 'на обслуживании') THEN
-                    RAISE EXCEPTION 'Lifesaving devices cannot be used for this operation, because its status is %', device_status;
-                END IF;
+            IF (device_status = 'ON_MISSION' AND OLD.lifesaving_devices_id != NEW.lifesaving_devices_id) OR (device_status = 'UNDER_MAINTENANCE') THEN
+                RAISE EXCEPTION 'Lifesaving devices cannot be used for this operation, because its status is %', device_status;
+            END IF;
             END IF;
 
-            IF (device_type = 'вертолет' AND ('снегопады' = ANY(NEW.weather_condition) OR 'метели' = ANY(NEW.weather_condition) OR 'сильные ветры' = ANY(NEW.weather_condition) OR 'туманы' = ANY(NEW.weather_condition))) THEN
-                RAISE EXCEPTION 'Lifesaving devices cannot be used for this operation, because its type is helicopter and we have bad weather in reaction plan information';
+            IF (device_type = 'HELICOPTER' AND ('SNOWFALL' = ANY(NEW.weather_condition) OR 'BLIZZARD' = ANY(NEW.weather_condition) OR 'STRONG_WINDS' = ANY(NEW.weather_condition))) THEN
+            RAISE EXCEPTION 'Lifesaving devices cannot be used for this operation, because its type is helicopter and we have bad weather in reaction plan information';
             END IF;
 
             IF (haversine_km(help_call_latitude, help_call_longitude, device_latitude, device_longitude) > device_reach_zone_km) THEN
-                RAISE EXCEPTION 'Lifesaving devices cannot be used for this operation, because it has small reach zone for this operation';
+            RAISE EXCEPTION 'Lifesaving devices cannot be used for this operation, because it has small reach zone for this operation';
             END IF;
 
             UPDATE lifesaving_devices
-            SET lifesaving_devices.status = 'в рейде'
-            WHERE lifesaving_devices.id = NEW.lifesaving_devices_id;
+            SET status = 'ON_MISSION'
+            WHERE id = NEW.lifesaving_devices_id;
+
+            IF TG_OP = 'UPDATE' THEN
+            IF NEW.lifesaving_devices_id != OLD.lifesaving_devices_id THEN
+                UPDATE lifesaving_devices
+                SET status = 'READY'
+                WHERE id = OLD.lifesaving_devices_id;
+            END IF;
+            END IF;
 
             IF TG_OP = 'INSERT' THEN
-                UPDATE help_messages
-                SET help_messages.status = 'в работе'
-                WHERE help_messages.id = NEW.help_message_id;
-            END IF;
-
-            INSERT INTO reaction_plans_history
-            VALUES (NEW.help_message_id, NOW(), NEW.lifesaving_devices_id, NEW.planning_time, NEW.weather_condition);
-                
-            RETURN NEW;
-        END;
-        $$ LANGUAGE plpgsql;
-        """
-    )
-    op.execute(
-        """
-        CREATE OR REPLACE FUNCTION insert_operation_act()
-        RETURNS trigger AS $$
-        DECLARE
-            lie_act_id INT;
-            operation_lifesaving_device INT;
-        BEGIN
-            SELECT lie_acts.help_message_id INTO lie_act_id
-            FROM lie_acts
-            WHERE lie_acts.help_message_id = NEW.help_message_id;
-
-            IF (lie_act_id IS NOT NULL) THEN
-                RAISE 'On this help message already exists act for lie call';
-            END IF;
-
-            SELECT reaction_plans.lifesaving_devices_id INTO operation_lifesaving_device
-            FROM reaction_plans
-            WHERE reaction_plans.help_message_id = NEW.help_message_id;
-
             UPDATE help_messages
-            SET help_messages.status = 'завершено'
-            WHERE help_messages.id = NEW.help_message_id;
-
-            UPDATE lifesaving_devices
-            SET lifesaving_devices.status = 'готов'
-            WHERE lifesaving_devices.id = operation_lifesaving_device;
-
+            SET status = 'IN_PROGRESS'
+            WHERE id = NEW.help_message_id;
+            END IF;
+            
             RETURN NEW;
         END;
         $$ LANGUAGE plpgsql;
         """
     )
+
+    op.execute(
+            """
+            CREATE OR REPLACE FUNCTION insert_operation_act()
+            RETURNS trigger AS $$
+            DECLARE
+                lie_act_id INT;
+                operation_lifesaving_device INT;
+                help_call_time TIMESTAMP;
+            BEGIN
+                SELECT lie_acts.help_message_id INTO lie_act_id
+                FROM lie_acts
+                WHERE lie_acts.help_message_id = NEW.help_message_id;
+
+                IF (lie_act_id IS NOT NULL) THEN
+                    RAISE 'On this help message already exists act for lie call';
+                END IF;
+                
+                SELECT help_messages.datetime INTO help_call_time
+                FROM help_messages
+                WHERE help_messages.id = NEW.help_message_id;
+                
+                IF (NEW.fact_datetime < help_call_time) THEN
+                    RAISE 'Operation fact time smaller than call time';
+                END IF;
+
+                SELECT reaction_plans.lifesaving_devices_id INTO operation_lifesaving_device
+                FROM reaction_plans
+                WHERE reaction_plans.help_message_id = NEW.help_message_id;
+
+                UPDATE help_messages
+                SET status = 'COMPLETED'
+                WHERE id = NEW.help_message_id;
+
+                UPDATE lifesaving_devices
+                SET status = 'READY'
+                WHERE id = operation_lifesaving_device;
+
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
+            """
+        )
 
     op.execute(
         """
@@ -220,13 +251,22 @@ def upgrade() -> None:
         DECLARE
             operation_acts_id INT;
             operation_lifesaving_device INT;
+            help_call_time TIMESTAMP;
         BEGIN
             SELECT operation_acts.help_message_id INTO operation_acts_id
             FROM operation_acts
             WHERE operation_acts.help_message_id = NEW.help_message_id;
 
-            IF (operation_acts IS NOT NULL) THEN
-                RAISE 'On this help message already exists opeartion act';
+            IF (operation_acts_id IS NOT NULL) THEN
+            RAISE 'On this help message already exists opeartion act';
+            END IF;
+            
+            SELECT help_messages.datetime INTO help_call_time
+            FROM help_messages
+            WHERE help_messages.id = NEW.help_message_id;
+            
+            IF (NEW.fact_datetime < help_call_time) THEN
+                RAISE 'Operation fact time smaller than call time';
             END IF;
 
             SELECT reaction_plans.lifesaving_devices_id INTO operation_lifesaving_device
@@ -234,12 +274,12 @@ def upgrade() -> None:
             WHERE reaction_plans.help_message_id = NEW.help_message_id;
 
             UPDATE help_messages
-            SET help_messages.status = 'ложное срабатывание'
-            WHERE help_messages.id = NEW.help_message_id;
+            SET status = 'FALSE_ALARM'
+            WHERE id = NEW.help_message_id;
 
             UPDATE lifesaving_devices
-            SET lifesaving_devices.status = 'готов'
-            WHERE lifesaving_devices.id = operation_lifesaving_device;
+            SET status = 'READY'
+            WHERE id = operation_lifesaving_device;
 
             RETURN NEW;
         END;
@@ -250,7 +290,7 @@ def upgrade() -> None:
     op.execute(
         """
         CREATE TRIGGER insert_update_reaction_plans_tg
-        BEFORE INSERT OR UPDATE OR DELETE ON reaction_plans
+        AFTER INSERT OR UPDATE ON reaction_plans
         FOR EACH ROW
         EXECUTE FUNCTION insert_update_reaction_plans();
         """
@@ -278,21 +318,22 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_index(op.f('ix_reaction_plans_history_change_datetime'), table_name='reaction_plans_history')
     op.drop_table('reaction_plans_history')
     op.drop_table('reaction_plans')
     op.drop_table('operation_acts')
     op.drop_table('lie_acts')
     op.drop_table('crews')
     op.drop_table('lifesaving_devices')
+    op.drop_index(op.f('ix_help_messages_datetime'), table_name='help_messages')
     op.drop_table('help_messages')
     # ### end Alembic commands ###
 
-    op.execute("DROP TRIGGER insert_lie_acts_tg;")
-    op.execute("DROP TRIGGER insert_operation_act_tg;")
-    op.execute("DROP TRIGGER insert_update_reaction_plans_tg;")
+    op.execute("DROP TRIGGER insert_lie_acts_tg ON lie_acts;")
+    op.execute("DROP TRIGGER insert_operation_act_tg ON operation_acts;")
+    op.execute("DROP TRIGGER insert_update_reaction_plans_tg ON reaction_plans;")
 
-    op.execute("DROP FUNCTION insert_lie_call_act;")
+    op.execute("DROP FUNCTION insert_lie_call_act")
     op.execute("DROP FUNCTION insert_operation_act")
-    op.execute("DROP FUNCTION insert_update_reaction_plans;")
-    op.execute("DROP FUNCTION haversine_km;")
-       
+    op.execute("DROP FUNCTION insert_update_reaction_plans")
+    op.execute("DROP FUNCTION haversine_km")

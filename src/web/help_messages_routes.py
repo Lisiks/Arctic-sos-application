@@ -19,6 +19,6 @@ async def create(
 @router.get("/", status_code=status.HTTP_200_OK, response_model=list[HelpMessageGetModel])
 async def get_all(
     repo: Annotated[HelpMessagesRepository, Depends(HelpMessagesRepository)],
-    page: Annotated[Optional[int], Query(ge=0)] = 0,
+    page: Annotated[Optional[int], Query(gt=0)] = 1,
 ) -> list[HelpMessageGetModel]:
     return await repo.get_all(page)

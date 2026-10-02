@@ -33,6 +33,7 @@ class LifesavingDevices(Base):
     __tablename__ = "lifesaving_devices"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(200))
     type: Mapped[RescueAssetType] = mapped_column(Enum(RescueAssetType, name="rescue_asset_type"))
     latitude: Mapped[float] = mapped_column(NUMERIC(7, 4))
     longitude: Mapped[float] = mapped_column(NUMERIC(7, 4))
@@ -45,10 +46,6 @@ class LifesavingDevices(Base):
         CheckConstraint("reach_zone_km >= 0.01", name="reach_zone_km_ck")
     )
 
-    crews: Mapped[list["Crews"]] = relationship(
-        back_populates="lifesaving_device",
-        cascade="all, delete-orphan"
-    )
 
 
 class Crews(Base):
@@ -61,20 +58,18 @@ class Crews(Base):
     position: Mapped[Position] = mapped_column(Enum(Position, name="crew_position"))
     lifesaving_devices_id: Mapped[int] = mapped_column(ForeignKey("lifesaving_devices.id", name="lifesaving_device_fk", ondelete="RESTRICT", onupdate="CASCADE"))
 
-    lifesaving_device: Mapped["LifesavingDevices"] = relationship(
-        back_populates="crews"
-    )
+    lifesaving_device: Mapped["LifesavingDevices"] = relationship()
 
 class ReactionPlans(Base):
     __tablename__ = "reaction_plans"
 
     help_message_id: Mapped[int] = mapped_column(ForeignKey("help_messages.id", name="help_message_fk", ondelete="CASCADE", onupdate="CASCADE"), primary_key=True)
     lifesaving_devices_id: Mapped[int] = mapped_column(ForeignKey("lifesaving_devices.id", name="lifesaving_device_fk", ondelete="RESTRICT", onupdate="CASCADE"))
-    planning_datetime: Mapped[datetime] = mapped_column(DateTime)
+    planning_time: Mapped[datetime] = mapped_column(DateTime)
     weather_condition: Mapped[list[WeatherCondition]] = mapped_column(ARRAY(Enum(WeatherCondition, name="weather_condition")))
 
     lifesaving_device: Mapped["LifesavingDevices"] = relationship()
-    help_message: Mapped["HelpMessages"] = relationship()
+
 
 class ReactionPlansHistory(Base):
     __tablename__ = "reaction_plans_history"
@@ -106,7 +101,7 @@ class OperationActs(Base):
         CheckConstraint("resque_count >= 0", name="resque_count_ck"),
     )
 
-    help_message: Mapped["HelpMessages"] = relationship()
+   
 
 
 class LieActs(Base):
@@ -117,7 +112,6 @@ class LieActs(Base):
     action_description: Mapped[str] = mapped_column(Text)
     fact_datetime: Mapped[datetime] = mapped_column(DateTime)
 
-    help_message: Mapped["HelpMessages"] = relationship()
 
 
 

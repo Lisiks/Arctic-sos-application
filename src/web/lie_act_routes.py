@@ -7,12 +7,13 @@ from ..models.lie_acts_models import LieActGetModel, LieActPostModel
 router = APIRouter(prefix="/lieacts", tags=["Lie acts"])
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=dict[str, str])
+@router.post("/{message_id}", status_code=status.HTTP_201_CREATED, response_model=dict[str, str])
 async def create(
+    message_id: Annotated[int, Path(gt=0)],
     repo: Annotated[LieActRepository, Depends(LieActRepository)],
     data: Annotated[LieActPostModel, Form(media_type="application/x-www-form-urlencoded")]
 ) -> dict[str, str]:
-    await repo.create(data)
+    await repo.create(message_id, data)
     return {"msg": "created"}
 
 

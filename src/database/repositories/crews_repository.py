@@ -6,7 +6,7 @@ from typing import Annotated
 
 from ...core.database import get_session
 
-from ...models.crews_models import CrewGetModel, CrewPostModel, CrewGetModelWithLifesevingDevice
+from ...models.crews_models import CrewGetModel, CrewPostModel
 from ..shemas import Crews
 
 class CrewsRepository:
@@ -34,8 +34,17 @@ class CrewsRepository:
 
             await self.__session.commit()
 
-    async def get_all(self) -> list[CrewGetModelWithLifesevingDevice]:
+
+    async def get_by_id(self, crew_id: int) -> CrewGetModel | None:
+        stmt = select(Crews).options(joinedload(Crews.lifesaving_device)).where(Crews.id == crew_id)
+        crew = await self.__session.scalar(stmt)
+        return CrewGetModel.model_validate(crew) if crew is not None else None
+
+
+    async def get_all(self) -> list[CrewGetModel]:
         stmt = select(Crews).options(joinedload(Crews.lifesaving_device))
-        devices = await self.__session.scalars(stmt)
-        return [CrewGetModelWithLifesevingDevice.model_validate(device) for device in devices.all()]
+        crews = await self.__session.scalars(stmt)
+
+      
+        return [CrewGetModel.model_validate(crew) for crew in crews.all()]
 
