@@ -4,6 +4,7 @@ from .lefisaving_devices_repo import LifesavingDevicesRepository
 from .operation_act_repository import OperationActRepository
 from .react_plans_repository import ReactPlansRepository
 from .lie_act_repository import LieActRepository
+from .reports_repository import ReportsRepository
 
 __all__ = [
     "CrewsRepository",
@@ -11,5 +12,6 @@ __all__ = [
     "LifesavingDevicesRepository",
     "OperationActRepository",
     "ReactPlansRepository",
-    "LieActRepository"
+    "LieActRepository",
+    "ReportsRepository"
 ]
