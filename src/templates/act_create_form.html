@@ -1,0 +1,45 @@
+{% extends "base_template.html" %}
+
+{% block document_title %}Итоговый акт операции - Арктический центр{% endblock %}
+
+{% block form_title %}Оформление итогового акта операции{% endblock %}
+
+{% block main %}
+
+    <div class="container">
+        <div class="form-container">
+            <div class="toolbar">
+                <h2>Итоговый акт по сообщению #{{ message.id }} ({{message.incident_type.value}})</h2>
+            </div>
+
+            <form id="create-form">
+                <div class="form-group">
+                    <label>Количество спасенных</label>
+                    <input type="number" min="0" placeholder="0" required name="resqueCount">
+                </div>
+
+                <div class="form-group">
+                    <label>Оказанная помощь</label>
+                    <textarea placeholder="Описание оказанной помощи" name="helpInfo"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Затраченные ресурсы</label>
+                    <textarea placeholder="Топливо, личный состав, техника и т.д." name="resoursesInfo"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Дата прибытия</label>
+                    <input type="datetime-local" required name="factDatetime">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save">Сохранить</button>
+                    <a href="/site/messages" class="btn btn-back">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+     <script type="module" src="{{ url_for('static', path='JS/create_act.js') }}"></script>
+{% endblock %}

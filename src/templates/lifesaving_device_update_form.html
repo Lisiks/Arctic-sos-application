@@ -1,0 +1,70 @@
+{% extends "base_template.html" %}
+
+{% block document_title %}Форма спасательного средства{% endblock %}
+
+{% block form_title %}Изменение спасательного средства{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="form-container">
+            <div class="toolbar">
+                <h2>Спасательное средство</h2>
+            </div>
+
+            <form method="post" id="update-form">
+                <div class="form-group">
+                    <label>Название</label>
+                    <input type="text" placeholder="Арктика AA1" required name="name" maxlength="200", minlength="5" value="{{ lifesaving_devise.name }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Тип</label>
+                    <select required name="type">
+                        <option value="">-- Выберите тип --</option>
+                        {% for type_ in lifesaving_devises_types %}
+                            {% if lifesaving_devise.type.value == type_ %}
+                                <option value="{{ type_ }}" selected>{{ type_ }}</option>
+                            {% else %}
+                                <option value="{{ type_ }}">{{ type_ }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Широта базирования °</label>
+                    <input type="number" placeholder="0" min="-180" max="180" step="0.0001" name="latitude" value="{{ lifesaving_devise.latitude }}" required>
+                    <label>Долгота базирования °</label>
+                    <input type="number" placeholder="0" min="-180" max="180" step="0.0001" name="longitude" value="{{ lifesaving_devise.longitude }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Зона досягаемости (км)</label>
+                    <input type="number" min="0" placeholder="0" required name="reachZoneKm" value="{{ lifesaving_devise.reach_zone_km }}"> 
+                </div>
+
+                <div class="form-group">
+                    <label>Текущий статус</label>
+                    <select required name="status">
+                        <option value="">-- Выберите статус --</option>
+                        {% for status in lifesaving_devises_statuses %}
+                            {% if lifesaving_devise.status.value == status %}
+                                <option value="{{ status }}" selected>{{ status }}</option>
+                            {% else %}
+                                <option value="{{ status }}">{{ status }}</option>
+                            {% endif%}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save">Сохранить</button>
+                    <a href="/site/lifesavingdevises" class="btn btn-back">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="{{ url_for('static', path='JS/update_lifesaving_device.js') }}"></script>
+{% endblock %}
+

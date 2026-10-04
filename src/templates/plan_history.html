@@ -1,0 +1,45 @@
+{% extends "base_template.html" %}
+
+{% block document_title %}История изменения плана - Арктический центр{% endblock %}
+
+{% block form_title %}История изменения плана реагирования{% endblock %}
+
+
+
+{% block main %}
+    <div class="container">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <h2>История плана по сообщению #{{ main_plan.help_message_id }}</h2>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Время изменения</th>
+                    <th>Судно спасения</th>
+                    <th>Время прибытия</th>
+                    <th>Метеоусловия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for plan in plans %}
+
+                    <tr>
+                        <td>{{ plan.change_datetime }}</td>
+                        <td>{{ plan.lifesaving_device.name }}</td>
+                        <td>{{ plan.planning_time }}</td>
+                        <td>
+                            {% for weather in plan.weather_condition%}
+                                {{ weather.value + ' ' }}
+                            {% endfor %}
+                        </td>
+                    </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base_template.html" %}
+
+{% block document_title %}Итоговый акт операции - Арктический центр{% endblock %}
+
+{% block form_title %}Панель управления и отчетности{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <form action="#" method="get" class="pagination" id="pagination-form">
+                    <input type="number" name="page" value="{{ page }}" hidden>
+                    <button type="submit" id="last-page-button">←</button>
+                    <button type="submit" id="next-page-button">→</button>
+                </form>
+                <h2>Итоговый акт операции</h2>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID сообщения</th>
+                        <th>Кол-во спасенных</th>
+                        <th>Оказанная помощь</th>
+                        <th>Затраченные ресурсы</th>
+                        <th>Дата прибытия</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    {% for act in acts %}
+                        <tr>
+                            <td>{{ act.help_message_id }}</td>
+                            <td>{{ act.resque_count }}</td>
+                            <td>{{ act.help_info }}</td>
+                            <td>{{ act.resourses_info }}</td>
+                            <td>{{ act.fact_datetime }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="module" src="{{ url_for('static', path='JS/pagination_scripts.js') }}"></script>
+
+{% endblock %}

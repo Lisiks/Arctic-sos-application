@@ -1,0 +1,77 @@
+{% extends "base_template.html" %}
+
+{% block document_title %}Поступившие сообщения - Арктический центр{% endblock %}
+
+{% block form_title %}Панель управления и отчетности{% endblock %}
+
+
+{% block main %}
+    <div class="container">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <form action="#" method="get" class="pagination" id="pagination-form">
+                    <input type="number" name="page" value="{{ page }}" hidden>
+                    <button type="submit" id="last-page-button">←</button>
+                    <button type="submit" id="next-page-button">→</button>
+                </form>
+                    
+             
+                <h2>Поступившие сообщения</h2>
+            </div>
+            <a href="/site/messages/create" class="btn btn-primary">+ Добавить сообщение</a>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Источник</th>
+                        <th>Координаты</th>
+                        <th>Тип происшествия</th>
+                        <th>Описание</th>
+                        <th>Канал связи</th>
+                        <th>Время приема</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    {% for message in messages %}
+                        <tr>
+                            <td>{{ message.id }}</td>
+                            <td>{{ message.source_type.value}}</td>
+                            <td>{{ message.latitude }}°N, {{ message.longitude }}°E</td>
+                            <td>{{ message.incident_type.value }}</td>
+                            <td>{{ message.incident_description }}</td>
+                            <td>{{ message.chanell_type.value }}</td>
+                            <td>{{ message.datetime }}</td>
+
+                            {% if message.status.value == 'принято' %}
+                                <td><span class="status status-new">принято</span></td>
+                                <td><a href="/site/plans/create/{{ message.id}}" class="btn btn-approve">План реагирования</a></td>
+                            {% elif message.status.value == 'в работе' %}
+                                <td><span class="status status-work">в работе</span></td>
+                                <td>
+                                <div class="actions">
+                                    <a href="/site/act/create/{{message.id}}" class="btn btn-act">Акт операции</a>
+                                    <a href="/site/lieact/create/{{message.id}}" class="btn btn-false">Ложный вызов</a>
+                                </div>
+                                </td>
+                            {% elif message.status.value == 'завершено' %}
+                                <td><span class="status status-done">завершено</span></td>
+                                <td></td>
+                            {% else %}
+                                <td><span class="status status-done">ложный вызов</span></td>
+                                <td></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+
+    <script type="module" src="{{ url_for('static', path='JS/pagination_scripts.js') }}"></script>
+{% endblock %}
