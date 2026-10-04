@@ -2,6 +2,7 @@ from .hellp_messages_enums import SourceType, CommunicationChannelType, HelpMess
 from .lifesaving_devices_enums import RescueAssetStatus, RescueAssetType
 from .crew_enums import Position
 from .reaction_plans_enums import WeatherCondition
+from .users_enums import UserRoles
 
 
 __all__ = [
@@ -12,5 +13,6 @@ __all__ = [
     "RescueAssetStatus",
     "RescueAssetType",
     "Position",
-    "WeatherCondition"
+    "WeatherCondition",
+    "UserRoles"
 ]

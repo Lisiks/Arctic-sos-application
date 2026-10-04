@@ -113,6 +113,17 @@ class LieActs(Base):
     fact_datetime: Mapped[datetime] = mapped_column(DateTime)
 
 
+class Users(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(30), unique=True)
+    password_hash: Mapped[str] = mapped_column(Text())
+    role: Mapped[UserRoles] = mapped_column(Enum(UserRoles, name="user_roles"))
+
+
+
+
 
 
 
