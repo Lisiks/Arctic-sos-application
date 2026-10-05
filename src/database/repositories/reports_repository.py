@@ -79,7 +79,7 @@ class ReportsRepository:
         return result.all()
 
 
-    async def messages_per_seasons_query(self) -> tuple:
+    async def messages_per_seasons_report(self) -> tuple:
         month = extract("month", HelpMessages.datetime)
 
         season = case(

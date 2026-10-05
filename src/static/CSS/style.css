@@ -7,6 +7,27 @@ body {
     padding: 20px;
 }
 
+
+#logout-form {
+    display: flex;
+    justify-content: end;
+    margin-bottom: 20px;
+}
+
+#logout-form > button {
+    background-color: transparent;
+    border: none;
+    color: gray;
+    font-size: 18px;
+    text-decoration: underline;
+}
+
+#logout-form > button:focus, #logout-form > button:hover {
+    text-decoration: none;
+    outline: none;
+}
+
+
 /* --- Шапка --- */
 header {
     background-color: #1a365d;
@@ -209,6 +230,7 @@ tr:hover { background-color: #f7fafc; }
     color: #2d3748;
     margin-bottom: 6px;
 }
+.form-group input[type="password"],
 .form-group input[type="text"],
 .form-group input[type="number"],
 .form-group input[type="datetime-local"],

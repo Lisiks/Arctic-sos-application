@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, status, Query, Form, Path
 from typing import Annotated, Optional
 
-from ..database.repositories import HelpMessagesRepository
+
+from ..utils import auth
+from ..models.users_models import UserJWTModel
+from ..services import HelpMessageService
 from ..models.help_messages_models import HelpMessageGetModel, HelpMessagePostModel
 
 router = APIRouter(prefix="/messages", tags=["Help messages"])
@@ -9,16 +12,19 @@ router = APIRouter(prefix="/messages", tags=["Help messages"])
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=dict[str, str])
 async def create(
-    repo: Annotated[HelpMessagesRepository, Depends(HelpMessagesRepository)],
-    data: Annotated[HelpMessagePostModel, Form(media_type="application/x-www-form-urlencoded")]
+    service: Annotated[HelpMessageService, Depends(HelpMessageService)],
+    data: Annotated[HelpMessagePostModel, Form(media_type="application/x-www-form-urlencoded")],
+    auth_data: Annotated[UserJWTModel, Depends(auth)]
 ) -> dict[str, str]:
-    await repo.create(data)
+    await service.create(data, auth_data)
     return {"msg": "created"}
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=list[HelpMessageGetModel])
 async def get_all(
-    repo: Annotated[HelpMessagesRepository, Depends(HelpMessagesRepository)],
-    page: Annotated[Optional[int], Query(gt=0)] = 1,
+    service: Annotated[HelpMessageService, Depends(HelpMessageService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
+    page: Annotated[Optional[int], Query(gt=0)] = 1
+    
 ) -> list[HelpMessageGetModel]:
-    return await repo.get_all(page)
+    return await service.get_all(page, auth_data)

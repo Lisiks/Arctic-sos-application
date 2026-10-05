@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход в систему - Арктический центр</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='CSS/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Координационный центр арктических поисково-спасательных операций</h1>
+        <p>Вход в систему</p>
+    </header>
+
+    <div class="container">
+        <div class="form-container">
+            <div class="toolbar">
+                <h2>Вход в систему</h2>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Логин:</label>
+                    <input type="text" placeholder="admin123" maxlength="30" minlength="6" required name="username">
+                    <label>Пароль:</label>
+                    <input type="password" minlength="6" maxlength="72" required name="plainPassword">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save">Войти</button>
+                </div>
+            </form>
+
+        </div>
+     </div>
+
+     <script type="module" src="{{ url_for('static', path='JS/login_script.js') }}"></script>
+    
+</body>
+</html>

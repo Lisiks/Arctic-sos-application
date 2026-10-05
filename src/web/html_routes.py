@@ -3,22 +3,53 @@ from fastapi.templating import Jinja2Templates
 from typing import Annotated
 
 from ..database.repositories import CrewsRepository, LifesavingDevicesRepository, HelpMessagesRepository, ReactPlansRepository, OperationActRepository, LieActRepository
+
+from ..services import CrewsService
+
 from ..enums import Position, RescueAssetStatus, RescueAssetType, CommunicationChannelType, HelpMessageType, SourceType, WeatherCondition
+from ..utils.jwt_manager import auth
+from ..models.users_models import UserJWTModel
 
 templater = Jinja2Templates(directory="src/templates")
 
 router = APIRouter(prefix="/site", tags=["<HTML>"])
 
+
+@router.get("/403", status_code=status.HTTP_200_OK)
+def error_403_page(
+    request: Request, 
+    auth_data: Annotated[UserJWTModel, Depends(auth)]
+):
+    return templater.TemplateResponse(
+        name="error_page.html",
+        request=request,
+        context={"message": "403 - отказано в доступе", "error_title": "Вам не хватает прав для осущестлвения данных действий!", "user_data": auth_data}
+    )
+
+
+@router.get("/404", status_code=status.HTTP_200_OK)
+def error_404_page(
+    request: Request,
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
+):
+    return templater.TemplateResponse(
+        name="error_page.html",
+        request=request,
+        context={"message": "404 - не найдено", "error_title": "Измениемый/просматриваемый/удаляемый ресурс не найден!", "user_data": auth_data}
+    )
+
+
 @router.get("/crews", status_code=status.HTTP_200_OK)
 async def crews(
     request: Request,
-    repo: Annotated[CrewsRepository, Depends(CrewsRepository)]
+    service: Annotated[CrewsService, Depends(CrewsService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
 ):
-    crews = await repo.get_all()
+    crews = await service.get_all(auth_data)
     return templater.TemplateResponse(
         name="crews.html",
         request=request,
-        context={"crews": crews}
+        context={"crews": crews, "user_data": auth_data}
     )
 
 
@@ -125,14 +156,16 @@ async def lifesaving_devises_update(
 async def messages(
     request: Request,
     repo: Annotated[HelpMessagesRepository, Depends(HelpMessagesRepository)],
+    user_data: Annotated[UserJWTModel, Depends(auth)],
     page: Annotated[int, Query(gt=0)] = 1,
+    
 ):
     messages = await repo.get_all(page)
   
     return templater.TemplateResponse(
         name="messages.html",
         request=request,
-        context={"messages": messages, "page": page}
+        context={"messages": messages, "page": page, "user_data": user_data}
     )
 
 
@@ -333,4 +366,14 @@ async def plans_get(
         request=request,
     )
 
+
+
+@router.get("/login", status_code=status.HTTP_200_OK)
+async def login_form(
+    request: Request,
+):
+    return templater.TemplateResponse(
+        name="login.html",
+        request=request,
+    )
 

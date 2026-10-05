@@ -8,6 +8,7 @@ from .operation_act_routes import router as oa_router
 from .react_plans_routes import router as rp_router
 from .html_routes import router as html_router
 from .reports_routes import router as rep_router
+from .users_routes import router as us_router
 
 router = APIRouter()
 
@@ -19,6 +20,7 @@ router.include_router(ld_router)
 router.include_router(oa_router)
 router.include_router(rp_router)
 router.include_router(rep_router)
+router.include_router(us_router)
 router.include_router(html_router)
 
 __all__ = [
