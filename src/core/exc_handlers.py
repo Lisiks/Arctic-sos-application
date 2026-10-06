@@ -67,7 +67,12 @@ def set_exc_handlers(app: FastAPI):
         elif "insert or update on table \"reaction_plans\" violates foreign key constraint \"lifesaving_device_fk\"" in exc_description:
             return JSONResponse(content={"msg": "This lifesaving device doesnt exists!"}, status_code=status.HTTP_409_CONFLICT)
 
+        elif "insert or update on table \"help_messages\" violates foreign key constraint \"source_id_fk\"" in exc_description:
+            return JSONResponse(content={"msg": "This source doesnt exists!"}, status_code=status.HTTP_409_CONFLICT)
 
+
+        elif "update or delete on table \"sources\" violates foreign key constraint \"source_id_fk\" on table \"help_messages\"" in exc_description:
+            return JSONResponse(content={"msg": "For this source already exists message!"}, status_code=status.HTTP_409_CONFLICT)
 
         elif "insert or update on table \"operation_acts\" violates foreign key constraint \"help_message_fk\"" in exc_description:
             return JSONResponse(content={"msg": "This message doesnt exists!"}, status_code=status.HTTP_409_CONFLICT)

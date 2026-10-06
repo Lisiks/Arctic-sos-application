@@ -6,6 +6,7 @@ from .react_plan_service import ReactionPlanService
 from .operation_acts_service import OpeartionActService
 from .lie_acts_service import LieActService
 from .report_service import RepotsService
+from .sources_service import SourcesService
 
 __all__ = [
     "UsersService",
@@ -15,5 +16,6 @@ __all__ = [
     "ReactionPlanService",
     "OpeartionActService",
     "LieActService",
-    "RepotsService"
+    "RepotsService",
+    "SourcesService"
 ]

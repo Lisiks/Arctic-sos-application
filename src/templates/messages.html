@@ -44,8 +44,8 @@
                     {% for message in messages %}
                         <tr>
                             <td>{{ message.id }}</td>
-                            <td>{{ message.source_type.value}}</td>
-                            <td>{{ message.latitude }}°N, {{ message.longitude }}°E</td>
+                            <td>{{ message.source.name}}({{message.source.source_type.value}})</td>
+                            <td>{{ message.source.latitude }}°N, {{ message.source.longitude }}°E</td>
                             <td>{{ message.incident_type.value }}</td>
                             <td>{{ message.incident_description }}</td>
                             <td>{{ message.chanell_type.value }}</td>

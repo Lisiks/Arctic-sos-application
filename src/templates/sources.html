@@ -1,0 +1,67 @@
+{% extends "base_template.html" %}
+
+{% block document_title %}Объекты - Арктический центр{% endblock %}
+
+{% block form_title %}Панель управления и отчетности{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="toolbar">
+            <h2>Список объектов</h2>
+
+            {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                <a href="/site/sources/create" class="btn btn-primary">+ Добавить объект</a>
+            {% endif %}
+        </div>
+
+         <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Имя</th>
+                        <th>Тип</th>
+                        <th>Координаты</th>
+                        <th>Повышенный источник ложных вызовов?</th>
+                       
+                        {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                            <th>Действия</th>
+                        {% endif %} 
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for source in sources %}
+                        <tr>
+                            <td>{{ source.id }}</td>
+                            <td>{{ source.name }}</td>
+                            <td>{{ source.source_type.value }}</td>
+                            <td>{{ source.latitude }}°N, {{ source.longitude }}°E</td>
+                            {% if source.need_check %}
+                                <td><span class="status status-busy">Да</span></td>
+                            {% else %}
+                                <td><span class="status status-ready">Нет</span></td>
+                            {% endif %}
+                            {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                                <td>
+                                    <div class="actions">
+                                        <a href="/site/sources/modify/{{ source.id }}" class="btn btn-edit">Ред.</a>
+                                        <button class="btn btn-delete" deleteSourceId="{{ source.id }}">Удалить</button>
+                                        {% if source.need_check %}
+                                            <button class="btn btn-approve" checkSourceId="{{ source.id }}">Проверено</button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            {% endif %} 
+                            </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+         </div>
+        
+    </div>
+    {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+        <script type="module" src="{{ url_for('static', path='JS/manage_source.js') }}"></script>
+    {% endif %} 
+
+{% endblock %}

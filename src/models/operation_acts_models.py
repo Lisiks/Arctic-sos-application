@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Annotated, Optional
 from datetime import datetime
 
-
+from .help_messages_models import HelpMessageGetModel
 
 
 class OperationActBaseModel(BaseModel):
@@ -32,6 +32,7 @@ class OperationActPostModel(OperationActBaseModel):
 
 class OperationActGetModel(OperationActBaseModel):
     help_message_id: Annotated[int, Field(alias="helpMessageId")]
+    help_message: HelpMessageGetModel
 
     model_config = ConfigDict(
         from_attributes=True,

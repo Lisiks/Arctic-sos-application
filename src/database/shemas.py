@@ -8,25 +8,38 @@ class Base(DeclarativeBase):
     ...
 
 
+class Sources(Base):
+    __tablename__ = "sources"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+    source_type: Mapped[SourceType] = mapped_column(Enum(SourceType, name="sourse_type"))
+    latitude: Mapped[float] = mapped_column(NUMERIC(7, 4))
+    longitude: Mapped[float] = mapped_column(NUMERIC(7, 4))
+    need_check: Mapped[bool] = mapped_column(default=False, server_default="FALSE")
+
+    __table_args__ = (
+        CheckConstraint("latitude >= -180.0 AND latitude <= 180.0", name="latitude_ck"),
+        CheckConstraint("longitude >= -180.0 AND longitude <= 180.0", name="longitude_ck")
+    )
+
+
 
 class HelpMessages(Base):
     __tablename__ = "help_messages"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    source_type: Mapped[SourceType] = mapped_column(Enum(SourceType, name="sourse_type"))
-    latitude: Mapped[float] = mapped_column(NUMERIC(7, 4))
-    longitude: Mapped[float] = mapped_column(NUMERIC(7, 4))
-    
+
+    sourse_id: Mapped[int] = mapped_column(ForeignKey("sources.id", name="source_id_fk", ondelete="RESTRICT", onupdate="CASCADE"))
     incident_type: Mapped[HelpMessageType] = mapped_column(Enum(HelpMessageType, name="help_message_type"))
     incident_description: Mapped[str] = mapped_column(Text)
     chanell_type: Mapped[CommunicationChannelType] = mapped_column(Enum(CommunicationChannelType, name="communication_channel_type"))
     datetime: Mapped[datetime] = mapped_column(DateTime, index=True)
     status: Mapped[IncidentStatus] = mapped_column(Enum(IncidentStatus, name="incident_status"))
 
-    __table_args__ = (
-        CheckConstraint("latitude >= -180.0 AND latitude <= 180.0", name="latitude_ck"),
-        CheckConstraint("longitude >= -180.0 AND longitude <= 180.0", name="longitude_ck")
-    )
+    source: Mapped["Sources"] = relationship()
+
+
 
 
 class LifesavingDevices(Base):
@@ -70,6 +83,8 @@ class ReactionPlans(Base):
 
     lifesaving_device: Mapped["LifesavingDevices"] = relationship()
 
+    help_message: Mapped["HelpMessages"] = relationship()
+
 
 class ReactionPlansHistory(Base):
     __tablename__ = "reaction_plans_history"
@@ -101,6 +116,7 @@ class OperationActs(Base):
         CheckConstraint("resque_count >= 0", name="resque_count_ck"),
     )
 
+    help_message: Mapped["HelpMessages"] = relationship()
    
 
 
@@ -111,6 +127,8 @@ class LieActs(Base):
     reason_description: Mapped[str] = mapped_column(Text)
     action_description: Mapped[str] = mapped_column(Text)
     fact_datetime: Mapped[datetime] = mapped_column(DateTime)
+
+    help_message: Mapped["HelpMessages"] = relationship()
 
 
 class Users(Base):

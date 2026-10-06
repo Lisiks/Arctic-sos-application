@@ -10,7 +10,7 @@
     <div class="container">
         <div class="form-container">
             <div class="toolbar">
-                <h2>План реагирования по сообщению #{{ message.id }} ({{message.incident_type.value}})</h2>
+                <h2>План реагирования по сообщению #{{ message.id }}<br>{{ message.incident_type.value }} на объекте "{{ message.source.name }}": {{message.source.latitude}}°N {{message.source.longitude}}°E</h2>
             </div>
 
             <form method="post" id="create-form">

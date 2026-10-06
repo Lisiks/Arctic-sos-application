@@ -1,0 +1,51 @@
+{% extends "base_template.html" %}
+
+{% block document_title %}Редактировать источник - Арктический центр{% endblock %}
+
+{% block form_title %}Редактирование источника{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="form-container">
+            <div class="toolbar">
+                <h2>Редактировать объект-источник</h2>
+            </div>
+
+            <form id="update-form" method="post">
+                <div class="form-group">
+                    <label>Объект-источник</label>
+                    <input type="text" placeholder="Arctic200" name="name" required maxlength="100" minlength="3" value="{{ source.name }}">
+                    <label>Тип источника</label>
+                    <select name="sourceType" required>
+                        <option value="">-- Выберите тип источника --</option>
+                        {% for sourse_type in sourse_types %}
+                            {% if sourse_type == source.source_type.value %}
+                                <option value="{{ sourse_type }}" selected>{{ sourse_type }}</option>
+                            {% else %}
+                                <option value="{{ sourse_type }}">{{ sourse_type }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select> 
+                </div>
+
+                <div class="form-group">
+                    <label>Широта базирования источника °</label>
+                    <input type="number" placeholder="0" min="-180" max="180" step="0.0001" name="latitude" required value="{{ source.latitude }}">
+                    <label>Долгота базирования источника°</label>
+                    <input type="number" placeholder="0" min="-180" max="180" step="0.0001" name="longitude" required value="{{ source.longitude }}">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save">Сохранить</button>
+                    <a href="/site/sources" class="btn btn-back">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="{{ url_for('static', path='JS/update_source.js') }}"></script>
+{% endblock %}
+
+
+
+    

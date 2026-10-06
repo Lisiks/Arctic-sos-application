@@ -10,7 +10,7 @@
     <div class="container">
         <div class="form-container">
             <div class="toolbar">
-                <h2>План реагирования по сообщению #{{ plan.help_message_id }}</h2>
+                 <h2>План реагирования по сообщению #{{ plan.help_message.id }}<br>{{ plan.help_message.incident_type.value }} на объекте "{{ plan.help_message.source.name }}": {{plan.help_message.source.latitude}}°N {{plan.help_message.source.longitude}}°E</h2>
             </div>
 
             <form method="post" id="update-form">

@@ -20,6 +20,7 @@
             <thead>
                 <tr>
                     <th>ID сообщения</th>
+                    <th>Описание сообщения</th>
                     <th>Судно спасения</th>
                     <th>Время прибытия</th>
                     <th>Метеоусловия</th>
@@ -31,6 +32,7 @@
 
                     <tr>
                         <td>{{ plan.help_message_id }}</td>
+                        <td>{{ plan.help_message.incident_type.value }}, произошедшее на объекте источнике "{{ plan.help_message.source.name }}"({{plan.help_message.source.source_type.value}}).</td>
                         <td>{{ plan.lifesaving_device.name }}</td>
                         <td>{{ plan.planning_time }}</td>
                         <td>

@@ -2,18 +2,16 @@ from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Annotated, Optional
 from datetime import datetime
 
-from ..enums import SourceType, HelpMessageType, CommunicationChannelType, IncidentStatus
+from ..enums import HelpMessageType, CommunicationChannelType, IncidentStatus
+from .sources_models import SourceGetModel
 
 
 class HelpMessageBaseModel(BaseModel):
-    source_type: Annotated[SourceType, Field(alias="sourceType")]
-    latitude: Annotated[float, Field(ge=-180.0, le=180)]
-    longitude: Annotated[float, Field(ge=-180.0, le=180)]
+    sourse_id: Annotated[int, Field(gt=0, alias="sourceId")]
     incident_type: Annotated[HelpMessageType, Field(alias="incidentType")]
     incident_description: Annotated[str, Field(alias="incidentDescription")]
     chanell_type: Annotated[CommunicationChannelType, Field(alias="chanellType")]
     datetime: datetime
-    status: Annotated[IncidentStatus, Field(default=IncidentStatus.ACCEPTED)]
 
     @field_validator("datetime", mode="after")
     @classmethod
@@ -35,6 +33,8 @@ class HelpMessagePostModel(HelpMessageBaseModel):
 
 class HelpMessageGetModel(HelpMessageBaseModel):
     id: int
+    source: SourceGetModel
+    status: IncidentStatus
 
     model_config = ConfigDict(
         from_attributes=True,

@@ -165,35 +165,94 @@ async def lifesaving_devises_update(
     )
 
 
+@router.get("/sources", status_code=status.HTTP_200_OK)
+async def sources_get(
+    request: Request,
+    service: Annotated[SourcesService, Depends(SourcesService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
+):
+    sources = await service.get_all(auth_data)
+    return templater.TemplateResponse(
+        name="sources.html",
+        request=request,
+        context={
+            "sources": sources,
+            "user_data": auth_data
+        }
+    )
+
+
+@router.get("/sources/create", status_code=status.HTTP_200_OK)
+async def sources_create(
+    request: Request,
+    auth_data: Annotated[UserJWTModel, Depends(auth)], 
+):
+    if auth_data.role != UserRoles.ADMIN and auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser and administrator!")
+  
+    return templater.TemplateResponse(
+        name="sources_create_form.html",
+        request=request,
+        context={
+            "sourse_types": [sourse_type.value for sourse_type in SourceType],
+            "user_data": auth_data
+        }
+    )
+
+
+@router.get("/sources/modify/{source_id}", status_code=status.HTTP_200_OK)
+async def sources_modify(
+    request: Request,
+    source_id: Annotated[int, Path(gt=0)],
+    service: Annotated[SourcesService, Depends(SourcesService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)], 
+):
+    if auth_data.role != UserRoles.ADMIN and auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser and administrator!")
+
+    source = await service.get_by_id(source_id, auth_data)
+    
+    return templater.TemplateResponse(
+        name="sources_update_form.html",
+        request=request,
+        context={
+            "sourse_types": [sourse_type.value for sourse_type in SourceType],
+            "user_data": auth_data,
+            "source": source
+        }
+    )
+
 
 @router.get("/messages", status_code=status.HTTP_200_OK)
-async def messages(
+async def sources_get(
     request: Request,
     service: Annotated[HelpMessageService, Depends(HelpMessageService)],
     auth_data: Annotated[UserJWTModel, Depends(auth)],
     page: Annotated[int, Query(gt=0)] = 1,
-    
 ):
     messages = await service.get_all(page, auth_data)
-  
     return templater.TemplateResponse(
         name="messages.html",
         request=request,
         context={
-            "messages": messages, 
-            "page": page, 
-            "user_data": auth_data
+            "messages": messages,
+            "user_data": auth_data,
+            "page": page
         }
     )
+
 
 
 @router.get("/messages/create", status_code=status.HTTP_200_OK)
 async def messages_create(
     request: Request,
     auth_data: Annotated[UserJWTModel, Depends(auth)],
+    service: Annotated[SourcesService, Depends(SourcesService)],
 ):
     if auth_data.role != UserRoles.ADMIN and auth_data.role != UserRoles.SUPERUSER:
         raise IncorrectUserRole("This function only for superuser and administrator!")
+
+    sources = await service.get_all(auth_data)
   
     return templater.TemplateResponse(
         name="message_create_form.html",
@@ -201,7 +260,7 @@ async def messages_create(
         context={
             "chanell_types": [chanell_type.value for chanell_type in CommunicationChannelType], 
             "incident_types": [incident_type.value for incident_type in HelpMessageType], 
-            "sourse_types": [sourse_type.value for sourse_type in SourceType],
+            "sources": sources,
             "user_data": auth_data
         }
     )

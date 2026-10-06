@@ -7,7 +7,7 @@ from datetime import datetime
 
 from ...core.database import get_session
 from ...models.reaction_plans_models import ReactionPlanGetModel, ReactionPlanPostModel, ReactionPlanHistoryGetModel
-from ..shemas import ReactionPlans, ReactionPlansHistory
+from ..shemas import ReactionPlans, ReactionPlansHistory, HelpMessages
 
 
 class ReactPlansRepository:
@@ -51,12 +51,18 @@ class ReactPlansRepository:
 
 
     async def get_all(self, page: int) -> list[ReactionPlanGetModel]:
-        stmt = select(ReactionPlans).options(joinedload(ReactionPlans.lifesaving_device)).order_by(desc(ReactionPlans.planning_time), ReactionPlans.help_message_id).limit(30).offset((page - 1) * 30)
+        stmt = select(ReactionPlans).options(
+            joinedload(ReactionPlans.lifesaving_device), 
+            joinedload(ReactionPlans.help_message).joinedload(HelpMessages.source)
+        ).order_by(desc(ReactionPlans.planning_time), ReactionPlans.help_message_id).limit(30).offset((page - 1) * 30)
         plans = await self.__session.scalars(stmt)
         return [ReactionPlanGetModel.model_validate(plan) for plan in plans.all()]
 
     async def get_plan_by_id(self, message_id) -> ReactionPlanGetModel | None:
-        stmt = select(ReactionPlans).options(joinedload(ReactionPlans.lifesaving_device)).where(ReactionPlans.help_message_id == message_id)
+        stmt = select(ReactionPlans).options(
+            joinedload(ReactionPlans.lifesaving_device), 
+            joinedload(ReactionPlans.help_message).joinedload(HelpMessages.source)
+        ).where(ReactionPlans.help_message_id == message_id)
         plan = await self.__session.scalar(stmt)
         return ReactionPlanGetModel.model_validate(plan) if plan is not None else None
 

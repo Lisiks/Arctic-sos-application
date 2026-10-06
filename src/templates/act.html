@@ -22,6 +22,7 @@
                 <thead>
                     <tr>
                         <th>ID сообщения</th>
+                        <th>Описание сообщения</th>
                         <th>Кол-во спасенных</th>
                         <th>Оказанная помощь</th>
                         <th>Затраченные ресурсы</th>
@@ -32,6 +33,7 @@
                     {% for act in acts %}
                         <tr>
                             <td>{{ act.help_message_id }}</td>
+                            <td>{{ act.help_message.incident_type.value }}, произошедшее на объекте источнике "{{ act.help_message.source.name }}"({{act.help_message.source.source_type.value}}).</td>
                             <td>{{ act.resque_count }}</td>
                             <td>{{ act.help_info }}</td>
                             <td>{{ act.resourses_info }}</td>

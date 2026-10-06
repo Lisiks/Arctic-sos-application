@@ -1,0 +1,47 @@
+{% extends "base_template.html" %}
+
+{% block document_title %}Новый источник - Арктический центр{% endblock %}
+
+{% block form_title %}Добавление источника{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="form-container">
+            <div class="toolbar">
+                <h2>Новый объект-источник</h2>
+            </div>
+
+            <form id="create-form" method="post">
+                <div class="form-group">
+                    <label>Объект-источник</label>
+                    <input type="text" placeholder="Arctic200" name="name" required maxlength="100" minlength="3">
+                    <label>Тип источника</label>
+                    <select name="sourceType" required>
+                        <option value="">-- Выберите тип источника --</option>
+                        {% for sourse_type in sourse_types %}
+                            <option value="{{ sourse_type }}">{{ sourse_type }}</option>
+                        {% endfor %}
+                    </select> 
+                </div>
+
+                <div class="form-group">
+                    <label>Широта базирования источника °</label>
+                    <input type="number" placeholder="0" min="-180" max="180" step="0.0001" name="latitude" required>
+                    <label>Долгота базирования источника°</label>
+                    <input type="number" placeholder="0" min="-180" max="180" step="0.0001" name="longitude" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save">Сохранить</button>
+                    <a href="/site/sources" class="btn btn-back">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="{{ url_for('static', path='JS/create_source.js') }}"></script>
+{% endblock %}
+
+
+
+    
