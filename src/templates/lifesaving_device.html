@@ -8,7 +8,9 @@
     <div class="container">
         <div class="toolbar">
             <h2>Спасательные средства</h2>
-            <a href="/site/lifesavingdevises/create" class="btn btn-primary">+ Добавить средство</a>
+            {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                <a href="/site/lifesavingdevises/create" class="btn btn-primary">+ Добавить средство</a>
+            {% endif %}
         </div>
 
         <div class="table-container">
@@ -21,7 +23,9 @@
                         <th>Координаты базирования</th>
                         <th>Зона досягаемости</th>
                         <th>Текущий статус</th>
-                        <th>Действия</th>
+                        {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                            <th>Действия</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -33,7 +37,9 @@
                             <td>{{ lifesavind_device.latitude }}°N, {{ lifesavind_device.longitude }}°E</td>
                             <td>{{ lifesavind_device.reach_zone_km }}</td>
                             <td><span class="status {{ 'status-ready' if lifesavind_device.status.value == 'готов' else '' }}{{ 'status-busy' if lifesavind_device.status.value == 'в рейде' else '' }}{{ 'status-off' if lifesavind_device.status.value == 'на обслуживании' else '' }}">{{ lifesavind_device.status.value }}</span></td>
-                            <td><div class="actions"><a href="/site/lifesavingdevises/modify/{{ lifesavind_device.id }}" class="btn btn-edit">Ред.</a><button class="btn btn-delete" lifesavindDeviceId="{{ lifesavind_device.id }}">Удалить</button></div></td>
+                            {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                                <td><div class="actions"><a href="/site/lifesavingdevises/modify/{{ lifesavind_device.id }}" class="btn btn-edit">Ред.</a><button class="btn btn-delete" lifesavindDeviceId="{{ lifesavind_device.id }}">Удалить</button></div></td>
+                            {% endif %}    
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -42,6 +48,7 @@
         </div>
         
     </div>
-
-    <script type="module" src="{{ url_for('static', path='JS/delete_lifesaving_device.js') }}"></script>
+    {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+        <script type="module" src="{{ url_for('static', path='JS/delete_lifesaving_device.js') }}"></script>
+    {% endif %}  
 {% endblock %}

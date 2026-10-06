@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.exc import IntegrityError, DBAPIError
 
 from .settings import config
-from ..exceptions import DeleteSuperuserException, DeletedUserException, FailedLoginException, IncorrectUserRole, NotFoundRecordException
+from ..exceptions import SuperuserChangeException, DeletedUserException, FailedLoginException, IncorrectUserRole, NotFoundRecordException
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
 
@@ -22,13 +22,15 @@ def set_exc_handlers(app: FastAPI):
         responce.delete_cookie(key=config.jwt.cookie)
         return responce
 
-    @app.exception_handler(DeleteSuperuserException)
-    def deleted_superuser_error(request: Request, exc: DeleteSuperuserException):
-        return JSONResponse(content={"msg": "you cannot delete superuser"}, status_code=status.HTTP_401_UNAUTHORIZED)
+    @app.exception_handler(SuperuserChangeException)
+    def deleted_superuser_error(request: Request, exc: SuperuserChangeException):
+        return JSONResponse(content={"msg": "you cannot delete or create superuser"}, status_code=status.HTTP_403_FORBIDDEN)
 
     @app.exception_handler(DeletedUserException)
     def deleted_user_error(request: Request, exc: DeletedUserException):
-        return JSONResponse(content={"msg": "user was deleted"}, status_code=status.HTTP_403_FORBIDDEN)
+        responce = RedirectResponse("/site/login", status_code=status.HTTP_303_SEE_OTHER)
+        responce.delete_cookie(key=config.jwt.cookie)
+        return responce
 
     @app.exception_handler(IncorrectUserRole)
     def incorrect_user_role_exception(request: Request, exc: IncorrectUserRole):

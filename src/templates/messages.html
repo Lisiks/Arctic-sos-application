@@ -18,7 +18,9 @@
              
                 <h2>Поступившие сообщения</h2>
             </div>
-            <a href="/site/messages/create" class="btn btn-primary">+ Добавить сообщение</a>
+            {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                <a href="/site/messages/create" class="btn btn-primary">+ Добавить сообщение</a>
+            {% endif %}
         </div>
 
         <div class="table-container">
@@ -33,7 +35,9 @@
                         <th>Канал связи</th>
                         <th>Время приема</th>
                         <th>Статус</th>
-                        <th>Действия</th>
+                        {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                            <th>Действия</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody id="table-body">
@@ -49,14 +53,18 @@
 
                             {% if message.status.value == 'принято' %}
                                 <td><span class="status status-new">принято</span></td>
-                                <td><a href="/site/plans/create/{{ message.id}}" class="btn btn-approve">План реагирования</a></td>
+                                {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                                    <td><a href="/site/plans/create/{{ message.id}}" class="btn btn-approve">План реагирования</a></td>
+                                {% endif %}
                             {% elif message.status.value == 'в работе' %}
                                 <td><span class="status status-work">в работе</span></td>
                                 <td>
-                                <div class="actions">
-                                    <a href="/site/act/create/{{message.id}}" class="btn btn-act">Акт операции</a>
-                                    <a href="/site/lieact/create/{{message.id}}" class="btn btn-false">Ложный вызов</a>
-                                </div>
+                                {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                                    <div class="actions">
+                                        <a href="/site/act/create/{{message.id}}" class="btn btn-act">Акт операции</a>
+                                        <a href="/site/lieact/create/{{message.id}}" class="btn btn-false">Ложный вызов</a>
+                                    </div>
+                                {% endif %}
                                 </td>
                             {% elif message.status.value == 'завершено' %}
                                 <td><span class="status status-done">завершено</span></td>
@@ -72,6 +80,7 @@
         </div>
         
     </div>
-
+   
     <script type="module" src="{{ url_for('static', path='JS/pagination_scripts.js') }}"></script>
+
 {% endblock %}

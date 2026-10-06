@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict, computed_field
+from pydantic import BaseModel, Field, ConfigDict, computed_field, field_validator
 from typing import Annotated, Optional
 
 from ..enums import UserRoles
@@ -16,6 +16,7 @@ class UserLoginModel(BaseModel):
     username: Annotated[str, Field(max_length=30, min_length=6)]
     plain_password: Annotated[str, Field(max_length=72, min_length=6, alias="plainPassword", exclude=True)]
 
+
     model_config = ConfigDict(
         from_attributes=True,
         validate_by_alias=True,
@@ -26,6 +27,13 @@ class UserLoginModel(BaseModel):
 class UserPostModel(UserBaseModel):
     plain_password: Annotated[str, Field(max_length=72, min_length=6, alias="plainPassword", exclude=True)]
     password_hash: Optional[str] = None
+
+    @field_validator("role", mode="after")
+    @classmethod
+    def vаlidate_user_role_without_superuser(cls, value: UserRoles) -> UserRoles:
+        if value == UserRoles.SUPERUSER:
+            raise ValueError("You cannot create superuser!")
+        return value
 
     model_config = ConfigDict(
         from_attributes=True,

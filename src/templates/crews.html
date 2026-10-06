@@ -8,7 +8,10 @@
     <div class="container">
         <div class="toolbar">
             <h2>Список сотрудников (Экипаж)</h2>
-            <a href="/site/crews/create" class="btn btn-primary">+ Добавить сотрудника</a>
+
+            {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                <a href="/site/crews/create" class="btn btn-primary">+ Добавить сотрудника</a>
+            {% endif %}
         </div>
 
          <div class="table-container">
@@ -19,7 +22,9 @@
                         <th>ФИО</th>
                         <th>Должность</th>
                         <th>Спасательное средство</th>
-                        <th>Действия</th>
+                        {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                            <th>Действия</th>
+                        {% endif %} 
                     </tr>
                 </thead>
                 <tbody>
@@ -29,8 +34,10 @@
                             <td>{{ crew.f + ' ' + crew.i + ' ' + crew.o}}</td>
                             <td>{{ crew.position.value }}</td>
                             <td>{{ crew.lifesaving_device.name }}</td>
-                            <td><div class="actions"><a href="/site/crews/modify/{{ crew.id }}" class="btn btn-edit">Ред.</a><button class="btn btn-delete" deletedCrewId="{{ crew.id }}">Удалить</button></div></td>
-                        </tr>
+                            {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                                <td><div class="actions"><a href="/site/crews/modify/{{ crew.id }}" class="btn btn-edit">Ред.</a><button class="btn btn-delete" deletedCrewId="{{ crew.id }}">Удалить</button></div></td>
+                            {% endif %} 
+                            </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -38,7 +45,8 @@
          </div>
         
     </div>
-
-    <script type="module" src="{{ url_for('static', path='JS/delete_crew.js') }}"></script>
+    {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+        <script type="module" src="{{ url_for('static', path='JS/delete_crew.js') }}"></script>
+    {% endif %} 
 
 {% endblock %}

@@ -51,7 +51,7 @@ class ReactPlansRepository:
 
 
     async def get_all(self, page: int) -> list[ReactionPlanGetModel]:
-        stmt = select(ReactionPlans).options(joinedload(ReactionPlans.lifesaving_device)).order_by(ReactionPlans.help_message_id).limit(30).offset((page - 1) * 30)
+        stmt = select(ReactionPlans).options(joinedload(ReactionPlans.lifesaving_device)).order_by(desc(ReactionPlans.planning_time), ReactionPlans.help_message_id).limit(30).offset((page - 1) * 30)
         plans = await self.__session.scalars(stmt)
         return [ReactionPlanGetModel.model_validate(plan) for plan in plans.all()]
 

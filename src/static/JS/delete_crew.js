@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const deleteConfirm = confirm("Вы увереня, что хотите удалить данного сотрудника?")
+        const deleteConfirm = confirm("Вы уверенны, что хотите удалить данного сотрудника?")
 
         if (!deleteConfirm) {
             return;

@@ -1,6 +1,6 @@
 import enum
 
 class UserRoles(enum.Enum):
-    SUPERUSER = "superuser"
-    ADMIN = "admin"
-    ANNALYTIC = "annalytic"
+    SUPERUSER = "суперпользователь"
+    ADMIN = "управляющий"
+    ANNALYTIC = "аналитик"

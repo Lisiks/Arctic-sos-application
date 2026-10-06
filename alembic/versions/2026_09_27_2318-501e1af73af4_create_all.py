@@ -329,10 +329,6 @@ def downgrade() -> None:
     op.drop_table('help_messages')
     # ### end Alembic commands ###
 
-    op.execute("DROP TRIGGER insert_lie_acts_tg ON lie_acts;")
-    op.execute("DROP TRIGGER insert_operation_act_tg ON operation_acts;")
-    op.execute("DROP TRIGGER insert_update_reaction_plans_tg ON reaction_plans;")
-
     op.execute("DROP FUNCTION insert_lie_call_act")
     op.execute("DROP FUNCTION insert_operation_act")
     op.execute("DROP FUNCTION insert_update_reaction_plans")

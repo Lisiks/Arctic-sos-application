@@ -40,7 +40,9 @@
                         </td>
                         <td>
                             <div class="actions">
-                                <a href="/site/plans/modify/{{ plan.help_message_id }}" class="btn btn-edit">Ред.</a>
+                                {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
+                                    <a href="/site/plans/modify/{{ plan.help_message_id }}" class="btn btn-edit">Ред.</a>
+                                {% endif %}
                                 <a href="/site/plans/{{ plan.help_message_id }}/history" class="btn btn-history">История</a>
                             </div>
                         </td>

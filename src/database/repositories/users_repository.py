@@ -8,7 +8,7 @@ from ...core.database import get_session
 from ...core import config
 from ..shemas import Users
 from ...models.users_models import UserGetModel, UserPostModel, UserLoginModel
-from ...exceptions import FailedLoginException, DeleteSuperuserException
+from ...exceptions import FailedLoginException, SuperuserChangeException
 from ...utils import PasswordManager
 from ...enums import UserRoles
 
@@ -28,7 +28,7 @@ class UsersRepository:
             return False
 
         if user.role == UserRoles.SUPERUSER:
-            raise DeleteSuperuserException("You cannot delete superuser!")
+            raise SuperuserChangeException("You cannot delete superuser!")
 
         await self.__session.delete(user)
         await self.__session.commit()
@@ -56,7 +56,7 @@ class UsersRepository:
         if superuser is None:
             superuser = Users(
                 username=config.app.superuser_name,
-                hash_password = PasswordManager.hash_password(config.app.superuser_password),
+                password_hash = PasswordManager.hash_password(config.app.superuser_password),
                 role=UserRoles.SUPERUSER
             )
             self.__session.add(superuser)

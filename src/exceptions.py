@@ -7,7 +7,7 @@ class IncorrectUserRole(Exception):
 class FailedLoginException(Exception):
     ...
 
-class DeleteSuperuserException(Exception):
+class SuperuserChangeException(Exception):
     ...
 
 class NotFoundRecordException(Exception):

@@ -3,12 +3,12 @@ from fastapi.templating import Jinja2Templates
 from typing import Annotated
 
 from ..database.repositories import CrewsRepository, LifesavingDevicesRepository, HelpMessagesRepository, ReactPlansRepository, OperationActRepository, LieActRepository
+from ..enums import Position, RescueAssetStatus, RescueAssetType, CommunicationChannelType, HelpMessageType, SourceType, WeatherCondition, UserRoles
 
-from ..services import CrewsService
-
-from ..enums import Position, RescueAssetStatus, RescueAssetType, CommunicationChannelType, HelpMessageType, SourceType, WeatherCondition
+from ..services import *
 from ..utils.jwt_manager import auth
 from ..models.users_models import UserJWTModel
+from ..exceptions import IncorrectUserRole
 
 templater = Jinja2Templates(directory="src/templates")
 
@@ -56,41 +56,48 @@ async def crews(
 @router.get("/crews/create", status_code=status.HTTP_200_OK)
 async def create_crews(
     request: Request,
-    repo: Annotated[LifesavingDevicesRepository, Depends(LifesavingDevicesRepository)]
+    service: Annotated[LifesavingDeviceService, Depends(LifesavingDeviceService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
 ):
-    livesaving_devises = await repo.get_all()
-    positions = [position.value for position in Position]
+    if auth_data.role != UserRoles.ADMIN and auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser and administrator!")
+    
+    livesaving_devises = await service.get_all(auth_data)
     
     return templater.TemplateResponse(
         name="crews_create_form.html",
         request=request,
-        context={"livesaving_devises": livesaving_devises, "positions": positions}
+        context={
+            "livesaving_devises": livesaving_devises, 
+            "positions": [position.value for position in Position],
+            "user_data": auth_data
+        }
     )
 
 @router.get("/crews/modify/{crew_id}", status_code=status.HTTP_200_OK)
 async def update_crews(
     request: Request,
     crew_id: Annotated[int, Path(gt=0)],
-    crews_repo:  Annotated[CrewsRepository, Depends(CrewsRepository)],
-    lifesaving_devices_repo: Annotated[LifesavingDevicesRepository, Depends(LifesavingDevicesRepository)]
+    crews_service:  Annotated[CrewsService, Depends(CrewsService)],
+
+    device_service: Annotated[LifesavingDeviceService, Depends(LifesavingDeviceService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
 ):
-    crew = await crews_repo.get_by_id(crew_id)
-
-    if crew is None:
-        return templater.TemplateResponse(
-            name="error_page.html",
-            request=request,
-            context={"message": "404 - данного сотрудника не существует!", "error_title": "Сотрудник не найден"}
-        )
-
-    livesaving_devises = await lifesaving_devices_repo.get_all()
-    positions = [position.value for position in Position]
-
+    if auth_data.role != UserRoles.ADMIN and auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser and administrator!")
+    
+    crew = await crews_service.get_by_id(crew_id, auth_data)
+    livesaving_devises = await device_service.get_all(auth_data)
 
     return templater.TemplateResponse(
         name="crews_update_form.html",
         request=request,
-        context={"livesaving_devises": livesaving_devises, "positions": positions, "crew": crew}
+        context={
+            "livesaving_devises": livesaving_devises, 
+            "positions": [position.value for position in Position], 
+            "crew": crew,
+            "user_data": auth_data
+        }
     )
 
 
@@ -99,13 +106,17 @@ async def update_crews(
 @router.get("/lifesavingdevises", status_code=status.HTTP_200_OK)
 async def lifesaving_devises(
     request: Request,
-    repo: Annotated[LifesavingDevicesRepository, Depends(LifesavingDevicesRepository)]
+    service: Annotated[LifesavingDeviceService, Depends(LifesavingDeviceService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
 ):
-    lifesavind_devices = await repo.get_all()
+    lifesavind_devices = await service.get_all(auth_data)
     return templater.TemplateResponse(
         name="lifesaving_device.html",
         request=request,
-        context={"lifesavind_devices": lifesavind_devices}
+        context={
+            "lifesavind_devices": lifesavind_devices,
+            "user_data": auth_data
+        }
     )
 
 
@@ -113,41 +124,44 @@ async def lifesaving_devises(
 @router.get("/lifesavingdevises/create", status_code=status.HTTP_200_OK)
 async def lifesaving_devises_create(
     request: Request,
-):  
-    lifesaving_devises_types = [type_.value for type_ in RescueAssetType]
-    lifesaving_devises_statuses = [status_.value for status_ in RescueAssetStatus]
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
+): 
+    if auth_data.role != UserRoles.ADMIN and auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser and administrator!")
     
     return templater.TemplateResponse(
         name="lifesaving_device_create_form.html",
         request=request,
-        context={"lifesaving_devises_types": lifesaving_devises_types, "lifesaving_devises_statuses": lifesaving_devises_statuses}
+        context={
+            "lifesaving_devises_types": [type_.value for type_ in RescueAssetType], 
+            "lifesaving_devises_statuses": [status_.value for status_ in RescueAssetStatus],
+            "user_data": auth_data
+        }
     )
-
 
 
 @router.get("/lifesavingdevises/modify/{device_id}", status_code=status.HTTP_200_OK)
 async def lifesaving_devises_update(
     device_id: Annotated[int, Path(gt=0)],
     request: Request,
-    repo: Annotated[LifesavingDevicesRepository, Depends(LifesavingDevicesRepository)]
+    service: Annotated[LifesavingDeviceService, Depends(LifesavingDeviceService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
 ):
-    device = await repo.get_by_id(device_id)
-
-    if device is None:
-        return templater.TemplateResponse(
-            name="error_page.html",
-            request=request,
-            context={"message": "404 - этого спасательного средства не существует!", "error_title": "Спасательное средство не найдено"}
-        )
-
-    lifesaving_devises_types = [type_.value for type_ in RescueAssetType]
-    lifesaving_devises_statuses = [status_.value for status_ in RescueAssetStatus]
+    if auth_data.role != UserRoles.ADMIN and auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser and administrator!")
+    
+    device = await service.get_by_id(device_id, auth_data)
 
 
     return templater.TemplateResponse(
         name="lifesaving_device_update_form.html",
         request=request,
-        context={"lifesaving_devises_types": lifesaving_devises_types, "lifesaving_devises_statuses": lifesaving_devises_statuses, "lifesaving_devise": device}
+        context={
+            "lifesaving_devises_types": [type_.value for type_ in RescueAssetType], 
+            "lifesaving_devises_statuses": [status_.value for status_ in RescueAssetStatus], 
+            "lifesaving_devise": device,
+            "user_data": auth_data
+        }
     )
 
 
@@ -155,48 +169,61 @@ async def lifesaving_devises_update(
 @router.get("/messages", status_code=status.HTTP_200_OK)
 async def messages(
     request: Request,
-    repo: Annotated[HelpMessagesRepository, Depends(HelpMessagesRepository)],
-    user_data: Annotated[UserJWTModel, Depends(auth)],
+    service: Annotated[HelpMessageService, Depends(HelpMessageService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
     page: Annotated[int, Query(gt=0)] = 1,
     
 ):
-    messages = await repo.get_all(page)
+    messages = await service.get_all(page, auth_data)
   
     return templater.TemplateResponse(
         name="messages.html",
         request=request,
-        context={"messages": messages, "page": page, "user_data": user_data}
+        context={
+            "messages": messages, 
+            "page": page, 
+            "user_data": auth_data
+        }
     )
 
 
 @router.get("/messages/create", status_code=status.HTTP_200_OK)
 async def messages_create(
     request: Request,
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
 ):
-    chanell_types = [chanell_type.value for chanell_type in CommunicationChannelType]
-    incident_types = [incident_type.value for incident_type in HelpMessageType]
-    sourse_types = [sourse_type.value for sourse_type in SourceType]
+    if auth_data.role != UserRoles.ADMIN and auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser and administrator!")
   
     return templater.TemplateResponse(
         name="message_create_form.html",
         request=request,
-        context={"chanell_types": chanell_types, "incident_types": incident_types, "sourse_types": sourse_types}
+        context={
+            "chanell_types": [chanell_type.value for chanell_type in CommunicationChannelType], 
+            "incident_types": [incident_type.value for incident_type in HelpMessageType], 
+            "sourse_types": [sourse_type.value for sourse_type in SourceType],
+            "user_data": auth_data
+        }
     )
 
 
 @router.get("/plans", status_code=status.HTTP_200_OK)
 async def plans_get(
     request: Request,
-    repo: Annotated[ReactPlansRepository, Depends(ReactPlansRepository)],
+    service: Annotated[ReactionPlanService, Depends(ReactionPlanService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
     page: Annotated[int, Query(gt=0)] = 1,
 ):
-    plans = await repo.get_all(page)
-
+    plans = await service.get_all(page, auth_data)
 
     return templater.TemplateResponse(
         name="plan.html",
         request=request,
-        context={"plans": plans, "page": page}
+        context={
+            "plans": plans, 
+            "page": page,
+            "user_data": auth_data
+        }
     )
 
 
@@ -204,26 +231,26 @@ async def plans_get(
 @router.get("/plans/create/{message_id}", status_code=status.HTTP_200_OK)
 async def plans_create(
     request: Request,
-    lifesaving_davices_repo: Annotated[LifesavingDevicesRepository, Depends(LifesavingDevicesRepository)],
-    messages_repo: Annotated[HelpMessagesRepository, Depends(HelpMessagesRepository)],
+    message_service: Annotated[HelpMessageService, Depends(HelpMessageService)],
+    device_service: Annotated[LifesavingDeviceService, Depends(LifesavingDeviceService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
     message_id: Annotated[int, Path(gt=0)]
 ):
-    message = await messages_repo.get_by_id(message_id)
-
-    if message is None:
-        return templater.TemplateResponse(
-            name="error_page.html",
-            request=request,
-            context={"message": "404 - данного сообщения не существует!", "error_title": "Сообщение не найдено!"}
-        )
-
-    livesaving_devises = await lifesaving_davices_repo.get_all()
-    weather_conditions = [condition.value for condition in WeatherCondition]
+    if auth_data.role != UserRoles.ADMIN and auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser and administrator!")
+    
+    message = await message_service.get_by_id(message_id, auth_data)
+    livesaving_devises = await device_service.get_all(auth_data)
   
     return templater.TemplateResponse(
         name="plan_create_form.html",
         request=request,
-        context={"livesaving_devises": livesaving_devises, "weather_conditions": weather_conditions, "message": message}
+        context={
+            "livesaving_devises": livesaving_devises, 
+            "weather_conditions": [condition.value for condition in WeatherCondition], 
+            "message": message,
+            "user_data": auth_data
+        }
     )
 
 
@@ -231,50 +258,47 @@ async def plans_create(
 @router.get("/plans/modify/{message_id}", status_code=status.HTTP_200_OK)
 async def plans_update(
     request: Request,
-    lifesaving_davices_repo: Annotated[LifesavingDevicesRepository, Depends(LifesavingDevicesRepository)],
-    repo: Annotated[ReactPlansRepository, Depends(ReactPlansRepository)],
+    plans_service: Annotated[ReactionPlanService, Depends(ReactionPlanService)],
+    device_service: Annotated[LifesavingDeviceService, Depends(LifesavingDeviceService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
     message_id: Annotated[int, Path(gt=0)]
 ):
-    plan = await repo.get_plan_by_id(message_id)
-
-    if plan is None:
-        return templater.TemplateResponse(
-            name="error_page.html",
-            request=request,
-            context={"message": "404 - данного плана не существует!", "error_title": "План не найден!"}
-        )
-
-    livesaving_devises = await lifesaving_davices_repo.get_all()
-    weather_conditions = [condition.value for condition in WeatherCondition]
+    if auth_data.role != UserRoles.ADMIN and auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser and administrator!")
+    
+    plan = await plans_service.get_by_id(message_id, auth_data)
+    livesaving_devises = await device_service.get_all(auth_data)
   
     return templater.TemplateResponse(
         name="plan_update_form.html",
         request=request,
-        context={"livesaving_devises": livesaving_devises, "weather_conditions": weather_conditions, "plan": plan}
+        context={
+            "livesaving_devises": livesaving_devises, 
+            "weather_conditions": [condition.value for condition in WeatherCondition], 
+            "plan": plan,
+            "user_data": auth_data
+        }
     )
 
 
 @router.get("/plans/{message_id}/history", status_code=status.HTTP_200_OK)
 async def plans_history(
     request: Request,
-    repo: Annotated[ReactPlansRepository, Depends(ReactPlansRepository)],
-    message_id: Annotated[int, Path(gt=0)]
+    plans_service: Annotated[ReactionPlanService, Depends(ReactionPlanService)],
+    message_id: Annotated[int, Path(gt=0)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
 ):
-    plan = await repo.get_plan_by_id(message_id)
-    
-    if plan is None:
-        return templater.TemplateResponse(
-            name="error_page.html",
-            request=request,
-            context={"message": "404 - данного плана не существует!", "error_title": "План не найден!"}
-        )
-
-    history = await repo.get_history(message_id)
+    plan = await plans_service.get_by_id(message_id, auth_data)
+    history = await plans_service.get_history(message_id, auth_data)
 
     return templater.TemplateResponse(
         name="plan_history.html",
         request=request,
-        context={"plans": history, "main_plan": plan}
+        context={
+            "plans": history, 
+            "main_plan": plan,
+            "user_data": auth_data
+        }
     )
 
 
@@ -282,22 +306,22 @@ async def plans_history(
 @router.get("/act/create/{message_id}", status_code=status.HTTP_200_OK)
 async def act_create(
     request: Request,
-    messages_repo: Annotated[HelpMessagesRepository, Depends(HelpMessagesRepository)],
-    message_id: Annotated[int, Path(gt=0)]
+    service: Annotated[HelpMessageService, Depends(HelpMessageService)],
+    message_id: Annotated[int, Path(gt=0)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
 ):
-    message = await messages_repo.get_by_id(message_id)
+    if auth_data.role != UserRoles.ADMIN and auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser and administrator!")
+    
+    message = await service.get_by_id(message_id, auth_data)
 
-    if message is None:
-        return templater.TemplateResponse(
-            name="error_page.html",
-            request=request,
-            context={"message": "404 - данного сообщения не существует!", "error_title": "Сообщение не найдено!"}
-        )
-  
     return templater.TemplateResponse(
         name="act_create_form.html",
         request=request,
-        context={"message": message}
+        context={
+            "message": message,
+            "user_data": auth_data
+        }
     )
 
 
@@ -305,22 +329,22 @@ async def act_create(
 @router.get("/lieact/create/{message_id}", status_code=status.HTTP_200_OK)
 async def lie_act_create(
     request: Request,
-    messages_repo: Annotated[HelpMessagesRepository, Depends(HelpMessagesRepository)],
-    message_id: Annotated[int, Path(gt=0)]
+    service: Annotated[HelpMessageService, Depends(HelpMessageService)],
+    message_id: Annotated[int, Path(gt=0)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
 ):
-    message = await messages_repo.get_by_id(message_id)
-
-    if message is None:
-        return templater.TemplateResponse(
-            name="error_page.html",
-            request=request,
-            context={"message": "404 - данного сообщения не существует!", "error_title": "Сообщение не найдено!"}
-        )
+    if auth_data.role != UserRoles.ADMIN and auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser and administrator!")
+    
+    message = await service.get_by_id(message_id, auth_data)
   
     return templater.TemplateResponse(
         name="lie_act_create_form.html",
         request=request,
-        context={"message": message}
+        context={
+            "message": message,
+            "user_data": auth_data
+        }
     )
 
 
@@ -329,41 +353,95 @@ async def lie_act_create(
 @router.get("/act", status_code=status.HTTP_200_OK)
 async def plans_get(
     request: Request,
-    repo: Annotated[OperationActRepository, Depends(OperationActRepository)],
+    service: Annotated[OpeartionActService, Depends(OpeartionActService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
     page: Annotated[int, Query(gt=0)] = 1,
 ):
-    acts = await repo.get_all(page)
+    acts = await service.get_all(page, auth_data)
 
     return templater.TemplateResponse(
         name="act.html",
         request=request,
-        context={"acts": acts, "page": page}
+        context={
+            "acts": acts, 
+            "page": page,
+            "user_data": auth_data
+        }
     )
 
 
 @router.get("/lieact", status_code=status.HTTP_200_OK)
 async def plans_get(
     request: Request,
-    repo: Annotated[LieActRepository, Depends(LieActRepository)],
+    service: Annotated[LieActService, Depends(LieActService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
     page: Annotated[int, Query(gt=0)] = 1,
 ):
-    lie_acts = await repo.get_all(page)
+    lie_acts = await service.get_all(page, auth_data)
 
     return templater.TemplateResponse(
         name="lie_act.html",
         request=request,
-        context={"lie_acts": lie_acts, "page": page}
+        context={
+            "lie_acts": lie_acts, 
+            "page": page,
+            "user_data": auth_data
+        }
+    )
+
+
+
+@router.get("/users", status_code=status.HTTP_200_OK)
+async def users(
+    request: Request,
+    service: Annotated[UsersService, Depends(UsersService)],
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
+):
+    if auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser!")
+    
+    users_ = await service.get_all(auth_data)
+    return templater.TemplateResponse(
+        name="users.html",
+        request=request,
+        context={
+            "users": users_, 
+            "user_data": auth_data
+        }
+    )
+
+
+@router.get("/users/create", status_code=status.HTTP_200_OK)
+async def users_create(
+    request: Request,
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
+):
+    if auth_data.role != UserRoles.SUPERUSER:
+        raise IncorrectUserRole("This function only for superuser!")
+    
+    return templater.TemplateResponse(
+        name="users_create_form.html",
+        request=request,
+        context={
+            "roles": [role.value for role in UserRoles if role != UserRoles.SUPERUSER], 
+            "user_data": auth_data
+        }
     )
 
 
 @router.get("/reports", status_code=status.HTTP_200_OK)
 async def plans_get(
     request: Request,
+    auth_data: Annotated[UserJWTModel, Depends(auth)],
   
 ):
+
     return templater.TemplateResponse(
         name="reports.html",
         request=request,
+        context={
+            "user_data": auth_data
+        }
     )
 
 

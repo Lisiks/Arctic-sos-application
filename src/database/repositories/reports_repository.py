@@ -50,22 +50,11 @@ class ReportsRepository:
         
 
     async def lie_acts_count_report(self) -> tuple:
-        ops_act_count = select(
-            func.count(OperationActs.help_message_id).label("operation_count")
-        ).scalar_subquery()
+        operation_act_count = await self.__session.scalar(select(func.count(OperationActs.help_message_id)))
+        lie_act_count = await self.__session.scalar(select(func.count(LieActs.help_message_id)))
+        lie_act_percent = lie_act_count / (lie_act_count + operation_act_count) if (lie_act_count + operation_act_count) > 0 else 0
 
-        lie_act_count = select(
-            func.count(LieActs.help_message_id).label("lie_act_count")
-        ).scalar_subquery()
-
-        stmt = select(
-            ops_act_count,
-            lie_act_count,
-            ((lie_act_count) / (ops_act_count + lie_act_count))
-        )
-        
-        result = await self.__session.execute(stmt)
-        return result.all()
+        return ((operation_act_count, lie_act_count, lie_act_percent),)
 
     async def lefesaving_device_ready_count_report(self) -> tuple:
         stmt = select(
