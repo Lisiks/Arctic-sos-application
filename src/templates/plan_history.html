@@ -21,6 +21,7 @@
                     <th>Судно спасения</th>
                     <th>Время прибытия</th>
                     <th>Метеоусловия</th>
+                    <th>Регистратор изменений</th>
                 </tr>
             </thead>
             <tbody>
@@ -35,6 +36,7 @@
                                 {{ weather.value + ' ' }}
                             {% endfor %}
                         </td>
+                        <td>{{ plan.user.username }}</td>
                     </tr>
 
                 {% endfor %}

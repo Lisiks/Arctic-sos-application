@@ -17,14 +17,14 @@ class ReactionPlanService:
         if auth_data.role not in {UserRoles.ADMIN, UserRoles.SUPERUSER}:
             raise IncorrectUserRole("This function only for superuser and administrator!")
 
-        await self.__repository.create(message_id, plan_params)
+        await self.__repository.create(message_id, plan_params, auth_data.id)
 
 
     async def modify(self, message_id: int, plan_params: ReactionPlanPostModel, auth_data: UserJWTModel) -> None:
         if auth_data.role not in {UserRoles.ADMIN, UserRoles.SUPERUSER}:
             raise IncorrectUserRole("This function only for superuser and administrator!")
 
-        await self.__repository.modify(message_id, plan_params)
+        await self.__repository.modify(message_id, plan_params, auth_data.id)
 
 
     async def get_by_id(self, message_id, auth_data: UserJWTModel) -> ReactionPlanGetModel:

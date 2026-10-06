@@ -24,6 +24,7 @@
                     <th>Судно спасения</th>
                     <th>Время прибытия</th>
                     <th>Метеоусловия</th>
+                    <th>Регистратор последних изменений</th>
                     <th>История</th>
                 </tr>
             </thead>
@@ -40,6 +41,7 @@
                                 {{ weather.value + ' ' }}
                             {% endfor %}
                         </td>
+                        <td>{{ plan.user.username }}</td>
                         <td>
                             <div class="actions">
                                 {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}

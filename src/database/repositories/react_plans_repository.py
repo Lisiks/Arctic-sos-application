@@ -15,35 +15,36 @@ class ReactPlansRepository:
         self.__session = session
 
 
-    async def create(self, message_id: int, plan_params: ReactionPlanPostModel) -> None:
-        plan = ReactionPlans(**plan_params.model_dump(), help_message_id=message_id)
+    async def create(self, message_id: int, plan_params: ReactionPlanPostModel, user_id: int) -> None:
+        plan = ReactionPlans(**plan_params.model_dump(), help_message_id=message_id, user_id=user_id)
         self.__session.add(plan)
         await self.__session.flush()
 
         plan_histoty = ReactionPlansHistory(
             **plan_params.model_dump(),
             change_datetime = datetime.now(),
-            help_message_id = message_id
-
+            help_message_id = message_id,
+            user_id=user_id
         )
         self.__session.add(plan_histoty)
 
         await self.__session.commit()
 
 
-    async def modify(self, message_id: int, plan_params: ReactionPlanPostModel) -> None:
+    async def modify(self, message_id: int, plan_params: ReactionPlanPostModel, user_id: int) -> None:
         plan = await self.__session.get(ReactionPlans, message_id)
 
         if plan is not None:
             for field, value in plan_params.model_dump().items():
                 setattr(plan, field, value)
-
+            plan.user_id = user_id
             await self.__session.flush()
 
             plan_histoty = ReactionPlansHistory(
                 **plan_params.model_dump(),
                 change_datetime = datetime.now(),
-                help_message_id = message_id
+                help_message_id = message_id,
+                user_id=user_id
             )
             self.__session.add(plan_histoty)
     
@@ -53,7 +54,8 @@ class ReactPlansRepository:
     async def get_all(self, page: int) -> list[ReactionPlanGetModel]:
         stmt = select(ReactionPlans).options(
             joinedload(ReactionPlans.lifesaving_device), 
-            joinedload(ReactionPlans.help_message).joinedload(HelpMessages.source)
+            joinedload(ReactionPlans.help_message).joinedload(HelpMessages.source),
+            joinedload(ReactionPlans.user)
         ).order_by(desc(ReactionPlans.planning_time), ReactionPlans.help_message_id).limit(30).offset((page - 1) * 30)
         plans = await self.__session.scalars(stmt)
         return [ReactionPlanGetModel.model_validate(plan) for plan in plans.all()]
@@ -61,13 +63,14 @@ class ReactPlansRepository:
     async def get_plan_by_id(self, message_id) -> ReactionPlanGetModel | None:
         stmt = select(ReactionPlans).options(
             joinedload(ReactionPlans.lifesaving_device), 
-            joinedload(ReactionPlans.help_message).joinedload(HelpMessages.source)
+            joinedload(ReactionPlans.help_message).joinedload(HelpMessages.source),
+            joinedload(ReactionPlans.user)
         ).where(ReactionPlans.help_message_id == message_id)
         plan = await self.__session.scalar(stmt)
         return ReactionPlanGetModel.model_validate(plan) if plan is not None else None
 
 
     async def get_history(self, message_id: int) -> list[ReactionPlanHistoryGetModel]:
-        stmt = select(ReactionPlansHistory).options(joinedload(ReactionPlansHistory.lifesaving_device)).where(ReactionPlansHistory.help_message_id == message_id).order_by(desc(ReactionPlansHistory.change_datetime))
+        stmt = select(ReactionPlansHistory).options(joinedload(ReactionPlansHistory.lifesaving_device), joinedload(ReactionPlansHistory.user)).where(ReactionPlansHistory.help_message_id == message_id).order_by(desc(ReactionPlansHistory.change_datetime))
         plans_in_history = await self.__session.scalars(stmt)
         return [ReactionPlanHistoryGetModel.model_validate(plan) for plan in plans_in_history.all()]

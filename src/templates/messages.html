@@ -33,6 +33,7 @@
                         <th>Тип происшествия</th>
                         <th>Описание</th>
                         <th>Канал связи</th>
+                        <th>Регистратор сообщения</th>
                         <th>Время приема</th>
                         <th>Статус</th>
                         {% if user_data.role.value == 'суперпользователь' or user_data.role.value == 'управляющий' %}
@@ -49,6 +50,7 @@
                             <td>{{ message.incident_type.value }}</td>
                             <td>{{ message.incident_description }}</td>
                             <td>{{ message.chanell_type.value }}</td>
+                            <td>{{ message.user.username }}</td>
                             <td>{{ message.datetime }}</td>
 
                             {% if message.status.value == 'принято' %}

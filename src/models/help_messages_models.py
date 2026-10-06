@@ -4,6 +4,7 @@ from datetime import datetime
 
 from ..enums import HelpMessageType, CommunicationChannelType, IncidentStatus
 from .sources_models import SourceGetModel
+from .users_models import UserGetModel
 
 
 class HelpMessageBaseModel(BaseModel):
@@ -35,6 +36,9 @@ class HelpMessageGetModel(HelpMessageBaseModel):
     id: int
     source: SourceGetModel
     status: IncidentStatus
+
+    user_id: Optional[int]
+    user: Optional[UserGetModel]
 
     model_config = ConfigDict(
         from_attributes=True,

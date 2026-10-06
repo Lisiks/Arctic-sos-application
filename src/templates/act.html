@@ -26,6 +26,7 @@
                         <th>Кол-во спасенных</th>
                         <th>Оказанная помощь</th>
                         <th>Затраченные ресурсы</th>
+                        <th>Регистратор акта</th>
                         <th>Дата прибытия</th>
                     </tr>
                 </thead>
@@ -37,6 +38,7 @@
                             <td>{{ act.resque_count }}</td>
                             <td>{{ act.help_info }}</td>
                             <td>{{ act.resourses_info }}</td>
+                            <td>{{ act.user.username }}</td>
                             <td>{{ act.fact_datetime }}</td>
                         </tr>
                     {% endfor %}

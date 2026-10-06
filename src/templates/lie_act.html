@@ -27,6 +27,7 @@
                         <th>Описание сообщения</th>
                         <th>Описание причины</th>
                         <th>Меры регулирования</th>
+                        <th>Регистратор акта</th>
                         <th>Дата прибытия</th>
                     </tr>
                 </thead>
@@ -37,6 +38,7 @@
                             <td>{{ lie_act.help_message.incident_type.value }}, произошедшее на объекте источнике "{{ lie_act.help_message.source.name }}"({{lie_act.help_message.source.source_type.value}}).</td>
                             <td>{{ lie_act.reason_description }}</td>
                             <td>{{ lie_act.action_description }}</td>
+                            <td>{{ lie_act.user.username }}</td>
                             <td>{{ lie_act.fact_datetime }}</td>
                         </tr>
                     {% endfor%}

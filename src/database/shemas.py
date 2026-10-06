@@ -1,6 +1,7 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import NUMERIC, Enum, Text, DateTime, ForeignKey, CheckConstraint, String, ARRAY, PrimaryKeyConstraint, Text
 from datetime import datetime
+from typing import Optional
 
 from ..enums import *
 
@@ -36,6 +37,9 @@ class HelpMessages(Base):
     chanell_type: Mapped[CommunicationChannelType] = mapped_column(Enum(CommunicationChannelType, name="communication_channel_type"))
     datetime: Mapped[datetime] = mapped_column(DateTime, index=True)
     status: Mapped[IncidentStatus] = mapped_column(Enum(IncidentStatus, name="incident_status"))
+
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", name="user_id_fk", onupdate="CASCADE", ondelete="SET NULL"))
+    user: Mapped["Users"] = relationship()
 
     source: Mapped["Sources"] = relationship()
 
@@ -81,6 +85,9 @@ class ReactionPlans(Base):
     planning_time: Mapped[datetime] = mapped_column(DateTime)
     weather_condition: Mapped[list[WeatherCondition]] = mapped_column(ARRAY(Enum(WeatherCondition, name="weather_condition")))
 
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", name="user_id_fk", onupdate="CASCADE", ondelete="SET NULL"))
+    user: Mapped["Users"] = relationship()
+
     lifesaving_device: Mapped["LifesavingDevices"] = relationship()
 
     help_message: Mapped["HelpMessages"] = relationship()
@@ -94,6 +101,9 @@ class ReactionPlansHistory(Base):
     lifesaving_devices_id: Mapped[int] = mapped_column(ForeignKey("lifesaving_devices.id", name="lifesaving_device_fk", ondelete="RESTRICT", onupdate="CASCADE"))
     planning_time: Mapped[datetime] = mapped_column(DateTime)
     weather_condition: Mapped[list[WeatherCondition]] = mapped_column(ARRAY(Enum(WeatherCondition, name="weather_condition")))
+
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", name="user_id_fk", onupdate="CASCADE", ondelete="SET NULL"))
+    user: Mapped["Users"] = relationship()
 
     lifesaving_device: Mapped["LifesavingDevices"] = relationship()
 
@@ -112,6 +122,9 @@ class OperationActs(Base):
     resourses_info: Mapped[str] = mapped_column(Text)
     fact_datetime: Mapped[datetime] = mapped_column(DateTime)
 
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", name="user_id_fk", onupdate="CASCADE", ondelete="SET NULL"))
+    user: Mapped["Users"] = relationship()
+
     __table_args__ = (
         CheckConstraint("resque_count >= 0", name="resque_count_ck"),
     )
@@ -127,6 +140,9 @@ class LieActs(Base):
     reason_description: Mapped[str] = mapped_column(Text)
     action_description: Mapped[str] = mapped_column(Text)
     fact_datetime: Mapped[datetime] = mapped_column(DateTime)
+
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", name="user_id_fk", onupdate="CASCADE", ondelete="SET NULL"))
+    user: Mapped["Users"] = relationship()
 
     help_message: Mapped["HelpMessages"] = relationship()
 

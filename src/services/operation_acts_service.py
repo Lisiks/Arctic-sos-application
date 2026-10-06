@@ -16,7 +16,7 @@ class OpeartionActService:
         if auth_data.role not in {UserRoles.ADMIN, UserRoles.SUPERUSER}:
             raise IncorrectUserRole("This function only for superuser and administrator!")
 
-        await self.__repository.create(message_id, act_params)
+        await self.__repository.create(message_id, act_params, auth_data.id)
 
 
     async def get_all(self, page: int, auth_data: UserJWTModel) -> list[OperationActGetModel]:

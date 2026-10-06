@@ -16,7 +16,7 @@ class HelpMessageService:
         if auth_data.role not in {UserRoles.ADMIN, UserRoles.SUPERUSER}:
             raise IncorrectUserRole("This function only for superuser and administrator!")
 
-        await self.__repository.create(message_params)
+        await self.__repository.create(message_params, auth_data.id)
 
 
     async def get_by_id(self, message_id, auth_data: UserJWTModel) -> CrewGetModel:

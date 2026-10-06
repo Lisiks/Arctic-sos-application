@@ -6,6 +6,7 @@ from datetime import datetime
 from ..enums import WeatherCondition
 from .short_models import LifesavingDeviceShortMode
 from .help_messages_models import HelpMessageGetModel
+from .users_models import UserGetModel
 
 
 class ReactionPlanBaseModel(BaseModel):
@@ -35,6 +36,9 @@ class ReactionPlanGetModel(ReactionPlanBaseModel):
     help_message_id: Annotated[int, Field(alias="helpMessageId")]
     help_message: HelpMessageGetModel
     lifesaving_device: Annotated[LifesavingDeviceShortMode, Field(alias="lifesavingDevice")]
+
+    user_id: Optional[int]
+    user: Optional[UserGetModel]
     
     model_config = ConfigDict(
         from_attributes=True,
@@ -46,6 +50,9 @@ class ReactionPlanHistoryGetModel(ReactionPlanBaseModel):
     help_message_id: Annotated[int, Field(alias="helpMessageId")]
     lifesaving_device: Annotated[LifesavingDeviceShortMode, Field(alias="lifesavingDevice")]
     change_datetime: Annotated[datetime, Field(alias="changeDatetime")]
+
+    user_id: Optional[int]
+    user: Optional[UserGetModel]
     
     model_config = ConfigDict(
         from_attributes=True,

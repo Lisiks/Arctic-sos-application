@@ -3,6 +3,7 @@ from typing import Annotated, Optional
 from datetime import datetime
 
 from .help_messages_models import HelpMessageGetModel
+from .users_models import UserGetModel
 
 
 class LieActBaseModel(BaseModel):
@@ -33,6 +34,9 @@ class LieActPostModel(LieActBaseModel):
 class LieActGetModel(LieActBaseModel):
     help_message_id: Annotated[int, Field(alias="helpMessageId")]
     help_message: HelpMessageGetModel
+
+    user_id: Optional[int]
+    user: Optional[UserGetModel]
 
     model_config = ConfigDict(
         from_attributes=True,
